@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% get_current_language as LANG %}
+
+{% block title %}{% if LANG == 'hy' %}Գրանցվել — Կապանցի{% elif LANG == 'fr' %}S'inscrire — Kapantsi{% else %}Register — Kapantsi{% endif %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4" style="background:linear-gradient(135deg,#F8FAFC 0%,#EEF2FF 100%)">
+  <div class="w-full max-w-lg">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-4" style="background:linear-gradient(135deg,#312E81,#4F46E5);box-shadow:0 8px 24px rgba(79,70,229,0.25)">
+        <img src="{% static 'img/mountain-logo.png' %}" alt="Kapantsi" class="h-12 w-auto object-contain">
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-[#0F0D2E]">Կապան<span style="color:#F97316">ցի</span></h1>
+      <p class="text-[#94A3B8] text-sm mt-1">
+        {% if LANG == 'hy' %}Ստեղծել հաշիվ{% elif LANG == 'fr' %}Créez votre compte{% else %}Create your account{% endif %}
+      </p>
+    </div>
+
+    <!-- Form card -->
+    <div class="bg-white rounded-3xl p-8" style="box-shadow:0 20px 60px rgba(0,0,0,0.1);border:1px solid #E2E8F0">
+      <form method="post" class="space-y-4" id="register-form">
+        {% csrf_token %}
+
+        <!-- Name row -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+              {% if LANG == 'hy' %}Անուն{% elif LANG == 'fr' %}Prénom{% else %}First Name{% endif %}
+            </label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+              {% if LANG == 'hy' %}Ազգանուն{% elif LANG == 'fr' %}Nom{% else %}Last Name{% endif %}
+            </label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ form.last_name.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Username -->
+        <div>
+          <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+            {% if LANG == 'hy' %}Գաղտնանուն{% elif LANG == 'fr' %}Nom d'utilisateur{% else %}Username{% endif %}
+            <span class="text-red-500">*</span>
+          </label>
+          {{ form.username }}
+          {% if form.username.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+            {% if LANG == 'hy' %}Էլեկտրոնային հասցե{% elif LANG == 'fr' %}Adresse e-mail{% else %}Email Address{% endif %}
+            <span class="text-red-500">*</span>
+          </label>
+          {{ form.email }}
+          {% if form.email.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Document type selector + ID number -->
+        <div>
+
+          <!-- Hidden doc_type field — value managed by JS pill buttons -->
+          {{ form.doc_type }}
+
+          <!-- Pill selector label -->
+          <label class="block text-sm font-medium text-[#64748B] mb-2">
+            {% if LANG == 'hy' %}Փաստաթղթի տեսակ{% elif LANG == 'fr' %}Type de document{% else %}Document Type{% endif %}
+            <span class="text-red-500">*</span>
+          </label>
+
+          <!-- Pill toggle buttons -->
+          <div class="grid grid-cols-2 gap-2 mb-4" id="doc-type-selector">
+
+            <button type="button" id="btn-national-id-card"
+              onclick="kapantsiSetDocType('national_id_card')"
+              class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
+              style="border:2px solid #4F46E5;background:#EEF2FF;color:#3730A3">
+              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+              </svg>
+              <span>{% if LANG == 'hy' %}Նույնականացման քարտ{% elif LANG == 'fr' %}Carte d'identité nationale{% else %}National ID Card{% endif %}</span>
+            </button>
+
+            <button type="button" id="btn-passport"
+              onclick="kapantsiSetDocType('passport')"
+              class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
+              style="border:2px solid #E5E7EB;background:#F9FAFB;color:#6B7280">
+              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+              <span>{% if LANG == 'hy' %}Անձնագիր{% elif LANG == 'fr' %}Passeport physique{% else %}Physical Passport{% endif %}</span>
+            </button>
+
+          </div>
+
+          <!-- National ID input label -->
+          <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+            {% if LANG == 'hy' %}Փաստաթղթի սերիական համարը{% elif LANG == 'fr' %}Numéro de série du document{% else %}Document Serial Number{% endif %}
+            <span class="text-red-500">*</span>
+          </label>
+
+          <!-- Input + live validation icon -->
+          <div class="relative">
+            {{ form.national_id }}
+            <div id="doc-valid-icon" class="absolute right-3 top-1/2 -translate-y-1/2 hidden">
+              <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div id="doc-invalid-icon" class="absolute right-3 top-1/2 -translate-y-1/2 hidden">
+              <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </div>
+          </div>
+
+          {% if form.national_id.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.national_id.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Phone (optional) -->
+        <div>
+          <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+            {% if LANG == 'hy' %}Հեռախոսահամար{% elif LANG == 'fr' %}Téléphone{% else %}Phone{% endif %}
+            <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            {{ form.phone }}
+            <div id="phone-valid-icon"   class="absolute right-3 top-1/2 -translate-y-1/2 hidden">
+              <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div id="phone-invalid-icon" class="absolute right-3 top-1/2 -translate-y-1/2 hidden">
+              <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </div>
+          </div>
+          {% if form.phone.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.phone.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Address (optional) -->
+        <div>
+          <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+            {% if LANG == 'hy' %}Բնակության հասցե{% elif LANG == 'fr' %}Adresse{% else %}Address{% endif %}
+            <span class="text-red-500">*</span>
+          </label>
+          {{ form.address }}
+        </div>
+
+        <!-- Passwords -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <div>
+            <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+              {% if LANG == 'hy' %}Գաղտնաբառ{% elif LANG == 'fr' %}Mot de passe{% else %}Password{% endif %}
+              <span class="text-red-500">*</span>
+            </label>
+            {{ form.password }}
+            {% if form.password.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ form.password.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+              {% if LANG == 'hy' %}Հաստատել{% elif LANG == 'fr' %}Confirmer{% else %}Confirm{% endif %}
+              <span class="text-red-500">*</span>
+            </label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Password hints -->
+        <div class="rounded-xl p-3.5" style="background:#F8FAFC;border:1px solid #E2E8F0">
+          <p class="text-xs font-medium text-[#64748B] mb-1.5 flex items-center gap-1">
+            <svg class="w-3 h-3 text-[#4F46E5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            {% if LANG == 'hy' %}Գաղտնաբառը պետք է պարունակի`{% elif LANG == 'fr' %}Exigences du mot de passe{% else %}Password requirements{% endif %}
+          </p>
+          <ul class="space-y-0.5 text-xs text-[#94A3B8]">
+            <li>• {% if LANG == 'hy' %}Նվազագույնը 8 նիշ{% elif LANG == 'fr' %}Minimum 8 caractères{% else %}Minimum 8 characters{% endif %}</li>
+            <li>• {% if LANG == 'hy' %}Մեծատառեր, թվեր և հատուկ նշաններ{% elif LANG == 'fr' %}Mélange de lettres et chiffres{% else %}Mix of letters and numbers{% endif %}</li>
+          </ul>
+        </div>
+
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+        <div class="rounded-xl p-3.5 text-sm flex items-start gap-2" style="background:#FEE2E2;color:#7F1D1D;border:1px solid #FECACA">
+          <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>{{ form.non_field_errors.0 }}</span>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="w-full btn-accent py-3.5 text-base flex items-center justify-center gap-2 mt-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          {% if LANG == 'hy' %}Գրանցվել{% elif LANG == 'fr' %}Créer un compte{% else %}Create Account{% endif %}
+        </button>
+      </form>
+
+      <div class="text-center mt-5 pt-5 border-t border-[#F1F5F9] text-sm text-[#94A3B8]">
+        {% if LANG == 'hy' %}Ունե՞ք հաշիվ
+        <a href="/login/" class="font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors ml-1">Մուտք գործել</a>
+        {% elif LANG == 'fr' %}
+        Vous avez déjà un compte ?
+        <a href="/login/" class="font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors ml-1">Connexion</a>
+        {% else %}
+        Already have an account?
+        <a href="/login/" class="font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors ml-1">Login</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Privacy note -->
+    <p class="text-center text-xs text-[#94A3B8] mt-4 px-4 leading-relaxed">
+      {% if LANG == 'hy' %}
+      Գրանցվելով՝ դուք հաստատում եք, որ հաստատում եք, որ ծանորացել եք հարթակի օգտագործման պայմաններին։ Ձեր նույնականացման քարտի և անձնագրի տվյալները պահվում են գաղտնի և չեն փոխանցվում երրորդ անձանց։      {% elif LANG == 'fr' %}
+      En vous inscrivant, vous confirmez avoir pris connaissance et compris les conditions d’utilisation de la plateforme. Les données de votre carte d’identité et de votre passeport sont conservées de manière sécurisée et ne sont pas communiquées à des tiers.
+      {% else %}
+      By registering, you confirm that you have read and understood the platform’s terms of use. Your National ID and passport data are stored securely and are not shared with third parties.
+      {% endif %}
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>window.KAPANTSI_LANG = "{{ LANG }}";</script>
+<script src="{% static 'js/register.js' %}"></script>
+{% if False %}{# ── original inline JS removed — lives in static/js/register.js ── #}
+<script>
+(function () {
+  var L    = "{{ LANG }}";
+  var lang = (L === 'hy') ? 'hy' : (L === 'fr') ? 'fr' : 'en';
+
+  // ── 1. Static field placeholder localisation ─────────────────────────
+  var placeholders = {
+    id_first_name:  { hy: 'Անուն',              fr: 'Prénom',                  en: 'First name' },
+    id_last_name:   { hy: 'Ազգանուն',           fr: 'Nom de famille',          en: 'Last name' },
+    id_username:    { hy: 'Մուտքանուն',         fr: "Nom d'utilisateur",       en: 'Username' },
+    id_email:       { hy: 'օգտ@example.com',    fr: 'email@example.com',       en: 'email@example.com' },
+    id_phone:       { hy: '+374-XX-XXXXXX',    fr: '+374-XX-XXXXXX',         en: '+374-XX-XXXXXX' },
+    id_address:     { hy: 'Կապան, Սյունիք',    fr: 'Kapan, Syunik',           en: 'Kapan, Syunik' },
+    id_password:    { hy: 'Նվազ. 6 նիշ',       fr: 'Min. 6 caractères',       en: 'Min 6 characters' },
+    id_password2:   { hy: 'Կրկնել գաղտնաբառը', fr: 'Répétez le mot de passe', en: 'Repeat password' }
+  };
+  Object.keys(placeholders).forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.placeholder = placeholders[id][lang];
+  });
+
+  // ── 2. Document-type data ─────────────────────────────────────────────
+  var HINTS = {
+    national_id_card: {
+      hy: 'Ֆորմատ՝ 9 թիվ (օր. 123456789)',
+      fr: 'Format : 9 chiffres (ex. 123456789)',
+      en: 'Format: 9 digits (e.g. 123456789)'
+    },
+    passport: {
+      hy: 'Ֆորմատ՝ 2 մեծ լատ. տառ + 7 թիվ (օր. AB1234567)',
+      fr: 'Format : 2 lettres maj. + 7 chiffres (ex. AB1234567)',
+      en: 'Format: 2 uppercase letters + 7 digits (e.g. AB1234567)'
+    }
+  };
+  var DOC_PLACEHOLDERS = {
+    national_id_card: { hy: '123456789', fr: '123456789', en: '123456789' },
+    passport:         { hy: 'AB1234567', fr: 'AB1234567', en: 'AB1234567' }
+  };
+  var BADGE_LABELS = {
+    national_id_card: { hy: 'Նույնականացման քարտ', fr: "Carte d'identité", en: 'National ID Card' },
+    passport:         { hy: 'Անձնագիր',             fr: 'Passeport',        en: 'Physical Passport' }
+  };
+  var PATTERNS = {
+    national_id_card: /^\d{9}$/,
+    passport:         /^[A-Z]{2}\d{7}$/
+  };
+
+  // DOM refs
+  var docTypeInput    = document.getElementById('id_doc_type');
+  var nationalIdInput = document.getElementById('id_national_id');
+  var panel           = document.getElementById('doc-type-panel');
+  var hintBar         = document.getElementById('doc-format-hint');
+  var hintText        = document.getElementById('doc-format-hint-text');
+  var badge           = document.getElementById('doc-type-badge');
+  var validIcon       = document.getElementById('doc-valid-icon');
+  var invalidIcon     = document.getElementById('doc-invalid-icon');
+  var btnCard         = document.getElementById('btn-national-id-card');
+  var btnPassport     = document.getElementById('btn-passport');
+
+  var BTN_BASE     = 'display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;border-radius:0.5rem;font-size:0.75rem;font-weight:600;transition:all 0.15s;width:100%;cursor:pointer';
+  var ACTIVE_BTN   = BTN_BASE + ';border:2px solid #4F46E5;background:#EEF2FF;color:#3730A3';
+  var INACTIVE_BTN = BTN_BASE + ';border:2px solid #E5E7EB;background:#F9FAFB;color:#6B7280';
+
+  // ── 3. Panel open / close ──────────────────────────────────────────────
+  function openPanel() {
+    if (!panel) return;
+    panel.style.display = 'block';
+    requestAnimationFrame(function () {
+      panel.style.maxHeight = '200px';
+      panel.style.opacity   = '1';
+    });
+  }
+  function closePanel() {
+    if (!panel) return;
+    panel.style.maxHeight = '0';
+    panel.style.opacity   = '0';
+    setTimeout(function () {
+      if (panel.style.opacity === '0') panel.style.display = 'none';
+    }, 230);
+  }
+
+  // Delay close so clicking a pill button inside the panel doesn't instantly collapse it
+  var blurTimer = null;
+  function scheduleClose() { blurTimer = setTimeout(closePanel, 160); }
+  function cancelClose()   { if (blurTimer) { clearTimeout(blurTimer); blurTimer = null; } }
+
+  if (nationalIdInput) {
+    nationalIdInput.addEventListener('focus', function () { cancelClose(); openPanel(); });
+    nationalIdInput.addEventListener('blur',  scheduleClose);
+  }
+  if (panel) {
+    panel.addEventListener('focusin',   cancelClose);
+    panel.addEventListener('focusout',  scheduleClose);
+    panel.addEventListener('mousedown', cancelClose); // keep open on mouse interaction
+  }
+
+  // ── 4. Set document type (pill button handler) ────────────────────────
+  function kapantsiSetDocType(type) {
+    if (!docTypeInput) return;
+    docTypeInput.value = type;
+
+    // Update pill button appearance
+    if (btnCard)     btnCard.setAttribute('style',     type === 'national_id_card' ? ACTIVE_BTN : INACTIVE_BTN);
+    if (btnPassport) btnPassport.setAttribute('style', type === 'passport'         ? ACTIVE_BTN : INACTIVE_BTN);
+
+    // Show / update format hint inside panel
+    if (hintBar && hintText) {
+      hintText.textContent = HINTS[type][lang];
+      hintBar.classList.remove('hidden');
+      hintBar.style.cssText = (type === 'passport')
+        ? 'border-radius:0.5rem;padding:0.375rem 0.625rem;font-size:0.6875rem;font-weight:500;display:flex;align-items:center;gap:0.375rem;background:#FEF9C3;color:#854D0E;border:1px solid #FDE68A'
+        : 'border-radius:0.5rem;padding:0.375rem 0.625rem;font-size:0.6875rem;font-weight:500;display:flex;align-items:center;gap:0.375rem;background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE';
+    }
+
+    // Update compact badge shown above the input (visible at a glance when panel is closed)
+    if (badge) {
+      badge.textContent = BADGE_LABELS[type][lang];
+      badge.classList.remove('hidden');
+      badge.style.cssText = (type === 'passport')
+        ? 'font-size:0.6875rem;font-weight:600;padding:0.125rem 0.5rem;border-radius:9999px;background:#FEF9C3;color:#854D0E;border:1px solid #FDE68A'
+        : 'font-size:0.6875rem;font-weight:600;padding:0.125rem 0.5rem;border-radius:9999px;background:#EEF2FF;color:#4338CA;border:1px solid #C7D2FE';
+    }
+
+    // Reset input for new type
+    if (nationalIdInput) {
+      nationalIdInput.placeholder         = DOC_PLACEHOLDERS[type][lang];
+      nationalIdInput.value               = '';
+      nationalIdInput.style.textTransform = (type === 'passport') ? 'uppercase' : 'none';
+      nationalIdInput.style.borderColor   = '';
+      nationalIdInput.focus();
+    }
+    if (validIcon)   validIcon.classList.add('hidden');
+    if (invalidIcon) invalidIcon.classList.add('hidden');
+  }
+
+  window.kapantsiSetDocType = kapantsiSetDocType;
+
+  // ── 5. Live validation while typing ───────────────────────────────────
+  if (nationalIdInput) {
+    nationalIdInput.addEventListener('input', function () {
+      var type = (docTypeInput && docTypeInput.value) || 'national_id_card';
+      var val  = nationalIdInput.value;
+
+      if (type === 'passport') {
+        var pos = nationalIdInput.selectionStart;
+        nationalIdInput.value = val.toUpperCase();
+        try { nationalIdInput.setSelectionRange(pos, pos); } catch (e) {}
+        val = nationalIdInput.value;
+      }
+
+      var ok = PATTERNS[type] && PATTERNS[type].test(val);
+      if (val.length === 0) {
+        if (validIcon)   validIcon.classList.add('hidden');
+        if (invalidIcon) invalidIcon.classList.add('hidden');
+        nationalIdInput.style.borderColor = '';
+      } else if (ok) {
+        if (validIcon)   validIcon.classList.remove('hidden');
+        if (invalidIcon) invalidIcon.classList.add('hidden');
+        nationalIdInput.style.borderColor = '#22C55E';
+      } else {
+        if (invalidIcon) invalidIcon.classList.remove('hidden');
+        if (validIcon)   validIcon.classList.add('hidden');
+        nationalIdInput.style.borderColor = '#F87171';
+      }
+    });
+  }
+
+  // ── 6. Phone input mask (+374-XX-XXXXXX) ─────────────────────────────
+  var phoneInput    = document.getElementById('id_phone');
+  var phoneValid    = document.getElementById('phone-valid-icon');
+  var phoneInvalid  = document.getElementById('phone-invalid-icon');
+  var PHONE_PREFIX  = '+374-';
+  var PHONE_PATTERN = /^\+374-\d{2}-\d{6}$/;
+
+  function applyPhoneMask(raw) {
+    // Strip everything that isn't a digit from the user-editable part
+    var digits = raw.replace(/\D/g, '');
+    // Remove the 374 country-code digits if they leaked in
+    if (digits.startsWith('374')) digits = digits.slice(3);
+    // Build masked string: XX-XXXXXX
+    var part1 = digits.slice(0, 2);
+    var part2 = digits.slice(2, 8);
+    var masked = PHONE_PREFIX + part1;
+    if (part2.length > 0) masked += '-' + part2;
+    return masked;
+  }
+
+  if (phoneInput) {
+    // Ensure prefix on focus
+    phoneInput.addEventListener('focus', function () {
+      if (!phoneInput.value.startsWith(PHONE_PREFIX)) {
+        phoneInput.value = PHONE_PREFIX;
+      }
+    });
+
+    phoneInput.addEventListener('input', function () {
+      var caretPos = phoneInput.selectionStart;
+      var raw = phoneInput.value;
+
+      // If user wiped the prefix, restore it
+      if (!raw.startsWith(PHONE_PREFIX)) {
+        // Extract any digits the user typed before the prefix was cleared
+        var digits = raw.replace(/\D/g, '');
+        if (digits.startsWith('374')) digits = digits.slice(3);
+        phoneInput.value = applyPhoneMask(digits);
+      } else {
+        // Work only on the portion after the prefix
+        var afterPrefix = raw.slice(PHONE_PREFIX.length);
+        phoneInput.value = applyPhoneMask(afterPrefix);
+      }
+
+      // Restore caret — clamp to end of new value
+      var newLen = phoneInput.value.length;
+      var newPos = Math.min(caretPos, newLen);
+      try { phoneInput.setSelectionRange(newPos, newPos); } catch (e) {}
+
+      // Live validation feedback
+      var val = phoneInput.value;
+      if (val === PHONE_PREFIX || val.length === 0) {
+        phoneValid.classList.add('hidden');
+        phoneInvalid.classList.add('hidden');
+        phoneInput.style.borderColor = '';
+      } else if (PHONE_PATTERN.test(val)) {
+        phoneValid.classList.remove('hidden');
+        phoneInvalid.classList.add('hidden');
+        phoneInput.style.borderColor = '#22C55E';
+      } else {
+        phoneInvalid.classList.remove('hidden');
+        phoneValid.classList.add('hidden');
+        phoneInput.style.borderColor = '#F87171';
+      }
+    });
+
+    // On blur: if only prefix remains, clear the field (it's optional)
+    phoneInput.addEventListener('blur', function () {
+      if (phoneInput.value === PHONE_PREFIX) {
+        phoneInput.value = '';
+        phoneInput.style.borderColor = '';
+        phoneValid.classList.add('hidden');
+        phoneInvalid.classList.add('hidden');
+      }
+    });
+  }
+
+  // ── 8. Silent initialisation (no panel opened on load) ────────────────
+  var initial = (docTypeInput && docTypeInput.value) || 'national_id_card';
+  if (btnCard)     btnCard.setAttribute('style',     initial === 'national_id_card' ? ACTIVE_BTN : INACTIVE_BTN);
+  if (btnPassport) btnPassport.setAttribute('style', initial === 'passport'         ? ACTIVE_BTN : INACTIVE_BTN);
+  if (nationalIdInput) {
+    nationalIdInput.placeholder         = DOC_PLACEHOLDERS[initial][lang];
+    nationalIdInput.style.textTransform = (initial === 'passport') ? 'uppercase' : 'none';
+  }
+})();
+</script>
+{% endif %}
+{% endblock %}

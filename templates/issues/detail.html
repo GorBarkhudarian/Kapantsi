@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+{% load i18n static dashboard_tags %}
+{% get_current_language as LANG %}
+
+{% block title %}{% if LANG == 'hy' %}{{ issue.title_hy }}{% else %}{{ issue.title_en|default:issue.title_hy }}{% endif %} — Kapantsi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-1.5 text-xs text-[#94A3B8] mb-7 flex-wrap">
+    <a href="/" class="hover:text-[#4F46E5] transition-colors font-medium">{% if LANG == 'hy' %}Գլխավոր{% elif LANG == 'fr' %}Accueil{% else %}Home{% endif %}</a>
+    <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <a href="/issues/" class="hover:text-[#4F46E5] transition-colors font-medium">{% if LANG == 'hy' %}Խնդիրներ{% elif LANG == 'fr' %}Problèmes{% else %}Issues{% endif %}</a>
+  </nav>
+
+  <div class="grid md:grid-cols-3 gap-6">
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="md:col-span-2 space-y-5">
+
+      <!-- Issue card -->
+      <div class="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden" style="box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        {% with extra=issue.extra_images.all %}
+        {% if issue.image or extra %}
+        <!-- Photo carousel -->
+        <div id="carousel" style="position:relative;background:#000;overflow:hidden">
+          <div id="carousel-track" style="display:flex;transition:transform 0.35s ease">
+            {% if issue.image %}
+            <img src="{{ issue.image.url }}" alt="{{ issue.title_hy }}"
+                 style="min-width:100%;height:288px;object-fit:cover;flex-shrink:0;cursor:zoom-in"
+                 onclick="carouselLightbox(this.src)">
+            {% endif %}
+            {% for ei in extra %}
+            <img src="{{ ei.image.url }}" alt=""
+                 style="min-width:100%;height:288px;object-fit:cover;flex-shrink:0;cursor:zoom-in"
+                 onclick="carouselLightbox(this.src)">
+            {% endfor %}
+          </div>
+          <button id="carousel-prev" onclick="carouselMove(-1)"
+            style="display:none;position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;color:#fff;font-size:22px;line-height:36px;text-align:center;z-index:10">&#8249;</button>
+          <button id="carousel-next" onclick="carouselMove(1)"
+            style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;color:#fff;font-size:22px;line-height:36px;text-align:center;z-index:10">&#8250;</button>
+          <div id="carousel-counter" style="display:none;position:absolute;bottom:10px;right:14px;background:rgba(0,0,0,0.55);color:#fff;font-size:12px;padding:2px 10px;border-radius:999px"></div>
+          <div id="carousel-dots" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px"></div>
+        </div>
+        <div id="carousel-thumbs" style="display:flex;gap:4px;padding:4px;background:#f1f5f9;overflow-x:auto"></div>
+        {% else %}
+        {% with cat=issue.category %}
+        <div class="h-48 flex items-center justify-center {% if cat == 'road' %}bg-[#EEF2FF]{% elif cat == 'water' %}bg-[#DBEAFE]{% elif cat == 'electricity' %}bg-[#FEF9C3]{% elif cat == 'waste' %}bg-[#DCFCE7]{% elif cat == 'safety' %}bg-[#FEE2E2]{% else %}bg-[#F1F5F9]{% endif %}">
+          <svg class="w-20 h-20 opacity-40 {% if cat == 'road' %}text-[#4F46E5]{% elif cat == 'water' %}text-[#1D4ED8]{% elif cat == 'electricity' %}text-[#854D0E]{% elif cat == 'waste' %}text-[#14532D]{% elif cat == 'safety' %}text-[#7F1D1D]{% else %}text-[#64748B]{% endif %}"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {% if cat == 'road' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+            {% elif cat == 'water' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/>
+            {% elif cat == 'electricity' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            {% elif cat == 'waste' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            {% elif cat == 'safety' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            {% else %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>{% endif %}
+          </svg>
+        </div>
+        {% endwith %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Fullscreen lightbox -->
+        <div id="lightbox" onclick="this.style.display='none'"
+          style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out">
+          <button onclick="lightboxMove(-1);event.stopPropagation()"
+            style="position:absolute;left:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:48px;height:48px;font-size:28px;color:#fff;cursor:pointer;line-height:48px;text-align:center">&#8249;</button>
+          <img id="lightbox-img" src="" alt=""
+            style="max-width:92vw;max-height:92vh;border-radius:0.75rem;box-shadow:0 8px 40px rgba(0,0,0,0.6)">
+          <button onclick="lightboxMove(1);event.stopPropagation()"
+            style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:48px;height:48px;font-size:28px;color:#fff;cursor:pointer;line-height:48px;text-align:center">&#8250;</button>
+          <div id="lightbox-counter"
+            style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.7);font-size:13px"></div>
+        </div>
+
+        <script>
+        (function(){
+          var slides = Array.from(document.querySelectorAll('#carousel-track img'));
+          var total  = slides.length;
+          if (!total) return;
+          var cur = 0;
+          var track    = document.getElementById('carousel-track');
+          var prevBtn  = document.getElementById('carousel-prev');
+          var nextBtn  = document.getElementById('carousel-next');
+          var counter  = document.getElementById('carousel-counter');
+          var dotsEl   = document.getElementById('carousel-dots');
+          var thumbsEl = document.getElementById('carousel-thumbs');
+          var dots = [];
+
+          if (total > 1) {
+            for (var i = 0; i < total; i++) {
+              (function(idx){
+                var d = document.createElement('div');
+                d.style.cssText = 'width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.5);cursor:pointer;transition:background 0.2s';
+                d.addEventListener('click', function(e){ e.stopPropagation(); goTo(idx); });
+                dotsEl.appendChild(d);
+                dots.push(d);
+              })(i);
+            }
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+            counter.style.display = 'block';
+          }
+
+          slides.forEach(function(img, idx){
+            var th = document.createElement('img');
+            th.src = img.src;
+            th.style.cssText = 'height:56px;width:72px;object-fit:cover;border-radius:6px;cursor:pointer;opacity:0.55;transition:opacity 0.2s,outline 0.2s;flex-shrink:0';
+            th.addEventListener('click', function(){ goTo(idx); });
+            thumbsEl.appendChild(th);
+          });
+          if (total <= 1) thumbsEl.style.display = 'none';
+
+          function goTo(idx){
+            cur = (idx + total) % total;
+            track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+            dots.forEach(function(d,i){ d.style.background = i===cur ? '#fff' : 'rgba(255,255,255,0.5)'; });
+            counter.textContent = (cur+1) + ' / ' + total;
+            thumbsEl.querySelectorAll('img').forEach(function(t,i){
+              t.style.opacity = i===cur ? '1' : '0.55';
+              t.style.outline = i===cur ? '2px solid #4F46E5' : 'none';
+            });
+          }
+          goTo(0);
+
+          window.carouselMove = function(dir){ goTo(cur+dir); };
+
+          var lbSrcs = slides.map(function(s){ return s.src; });
+          var lbCur  = 0;
+          window.carouselLightbox = function(src){
+            lbCur = lbSrcs.indexOf(src);
+            if (lbCur < 0) lbCur = 0;
+            showLB();
+          };
+          window.lightboxMove = function(dir){
+            lbCur = (lbCur + dir + total) % total;
+            showLB();
+          };
+          function showLB(){
+            document.getElementById('lightbox-img').src = lbSrcs[lbCur];
+            document.getElementById('lightbox-counter').textContent = (lbCur+1) + ' / ' + total;
+            document.getElementById('lightbox').style.display = 'flex';
+          }
+        })();
+        </script>
+
+        <div class="p-6">
+          <!-- Tags -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="text-xs font-medium px-3 py-1 rounded-full" style="background:#EEF2FF;color:#4F46E5">{{ category_labels|get_item:issue.category }}</span>
+            <span class="status-{{ issue.status }}">{{ status_labels|get_item:issue.status }}</span>
+            <span class="text-xs font-medium px-3 py-1 rounded-full" style="background:#F1F5F9;color:#64748B">{{ area_labels|get_item:issue.area }}</span>
+          </div>
+
+          <!-- Title -->
+          <h1 class="text-2xl font-bold tracking-tight text-[#0F0D2E] mb-4 leading-snug">
+            {% if LANG == 'hy' %}{{ issue.title_hy }}{% elif LANG == 'fr' %}{{ issue.title_fr|default:issue.title_en|default:issue.title_hy }}{% else %}{{ issue.title_en|default:issue.title_hy }}{% endif %}
+          </h1>
+
+          <!-- Description -->
+          <p class="text-[#64748B] leading-relaxed">
+            {% if LANG == 'hy' %}{{ issue.description_hy }}{% elif LANG == 'fr' %}{{ issue.description_en|default:issue.description_hy }}{% else %}{{ issue.description_en|default:issue.description_hy }}{% endif %}
+          </p>
+
+          {% if issue.location_address %}
+          <p class="flex items-center gap-2 text-sm text-[#94A3B8] mt-4">
+            <svg class="w-4 h-4 flex-shrink-0 text-[#4F46E5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            {{ issue.location_address }}
+          </p>
+          {% endif %}
+
+          <!-- Meta -->
+          <div class="flex flex-wrap items-center gap-4 mt-5 pt-5 border-t border-[#F1F5F9] text-xs text-[#94A3B8]">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              {{ issue.created_by.get_full_name|default:issue.created_by.username|default:"Anonymous" }}
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              {{ issue.created_at|date:"d M Y, H:i" }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      {% if issue.latitude and issue.longitude %}
+      <div class="bg-white rounded-2xl border border-[#E2E8F0]" style="box-shadow:0 1px 3px rgba(0,0,0,0.08);isolation:isolate">
+        <div class="flex items-center gap-2.5 px-5 py-4 border-b border-[#F1F5F9]">
+          <svg class="w-4 h-4 text-[#4F46E5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <h2 class="font-semibold text-sm text-[#0F0D2E]">{% if LANG == 'hy' %}Տեղակայություն{% elif LANG == 'fr' %}Localisation{% else %}Location{% endif %}</h2>
+        </div>
+        <div id="detail-map" class="h-56 w-full" style="position:relative;z-index:0"></div>
+      </div>
+      {% endif %}
+
+      <!-- Comments -->
+      <div class="bg-white rounded-2xl border border-[#E2E8F0]" style="box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <div class="flex items-center gap-2.5 px-6 py-4 border-b border-[#F1F5F9]">
+          <svg class="w-4 h-4 text-[#4F46E5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <h2 class="font-semibold text-sm text-[#0F0D2E]">
+            {% if LANG == 'hy' %}Մեկնաբանություններ{% elif LANG == 'fr' %}Commentaires{% else %}Comments{% endif %}
+            <span class="ml-1 text-[#94A3B8] font-normal">({{ comments|length }})</span>
+          </h2>
+        </div>
+
+        <div class="divide-y divide-[#F8FAFC]">
+          {% for comment in comments %}
+          <div class="px-6 py-5">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:#4F46E5">
+                {% if comment.author.first_name %}{{ comment.author.first_name|first|upper }}{% if comment.author.last_name %}{{ comment.author.last_name|first|upper }}{% endif %}{% else %}{{ comment.author.username|first|upper }}{% endif %}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="font-semibold text-sm text-[#64748B]">{{ comment.author.get_full_name|default:comment.author.username }}</span>
+                  <span class="text-[#94A3B8] text-xs">{{ comment.created_at|date:"d M Y, H:i" }}</span>
+                </div>
+                <p class="text-sm text-[#64748B] leading-relaxed">{{ comment.body }}</p>
+              </div>
+            </div>
+          </div>
+          {% empty %}{% endfor %}
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="px-6 py-5 border-t border-[#F1F5F9]" style="background:#F8FAFC">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="comment">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5" style="background:#F97316">
+                {% if user.first_name %}{{ user.first_name|first|upper }}{% if user.last_name %}{{ user.last_name|first|upper }}{% endif %}{% else %}{{ user.username|first|upper }}{% endif %}
+              </div>
+              <div class="flex-1">
+                {{ comment_form.body }}
+                <button type="submit"
+                  class="mt-2.5 btn-primary text-sm px-4 py-2">
+                  {% if LANG == 'hy' %}Ուղարկել{% elif LANG == 'fr' %}Envoyer{% else %}Submit{% endif %}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        {% else %}
+        <div class="px-6 py-4 border-t border-[#F1F5F9] text-center">
+          <a href="/login/" class="text-sm font-medium text-[#4F46E5] hover:text-[#4338CA] transition-colors">
+            {% if LANG == 'hy' %}Մեկնաբանություն թողնելու համար խնդրում ենք մուտք գործել{% elif LANG == 'fr' %}Connectez-vous pour laisser un commentaire{% else %}Log in to leave a comment{% endif %}
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── SIDEBAR ── -->
+    <div class="space-y-5">
+
+      <!-- Vote card -->
+      <div class="bg-white rounded-2xl border border-[#E2E8F0] p-6 text-center" style="box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <div class="text-5xl font-extrabold text-[#64748B] mb-1">{{ issue.upvote_count }}</div>
+        <div class="text-xs text-[#94A3B8] font-medium mb-5">{% if LANG == 'hy' %}Ձայներ{% elif LANG == 'fr' %}Votes{% else %}Votes{% endif %}</div>
+
+        {% if user.is_authenticated %}
+          {% if user.verified %}
+            <form method="post">
+              {% csrf_token %}
+              {% if user_voted %}
+              <input type="hidden" name="action" value="unvote">
+              <button type="submit" class="w-full btn-ghost flex items-center justify-center gap-2 text-sm">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                {% if LANG == 'hy' %}Ձայն եմ տվել{% elif LANG == 'fr' %}Voté{% else %}Voted{% endif %}
+              </button>
+              {% else %}
+              <input type="hidden" name="action" value="vote">
+              <button type="submit" class="w-full btn-accent flex items-center justify-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+                {% if LANG == 'hy' %}Ձայն Տալ{% elif LANG == 'fr' %}Voter{% else %}Vote{% endif %}
+              </button>
+              {% endif %}
+            </form>
+          {% else %}
+          <div class="rounded-xl p-3 text-xs text-[#854D0E]" style="background:#FEF9C3;border:1px solid #FEF08A">
+            {% if LANG == 'hy' %}Ձայն տալու համար հաշիվը պետք է հաստատված լինի։{% elif LANG == 'fr' %}Votre compte doit être vérifié pour voter.{% else %}Your account must be verified to vote.{% endif %}
+          </div>
+          {% endif %}
+        {% else %}
+        <a href="/login/" class="block w-full btn-primary text-sm text-center">
+          {% if LANG == 'hy' %}Ձայն տալու համար խնդրում ենք մուտք գործել{% elif LANG == 'fr' %}Veuillez vous connecter pour voter{% else %}Log-in to Vote{% endif %}
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Status timeline -->
+      <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5" style="box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <h3 class="font-semibold text-sm text-[#0F0D2E] mb-4 flex items-center gap-2">
+          <svg class="w-4 h-4 text-[#4F46E5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          {% if LANG == 'hy' %}Կարգավիճակը{% elif LANG == 'fr' %}Historique du statut{% else %}Status Timeline{% endif %}
+        </h3>
+        <div class="space-y-3">
+          {% for step_val, step_label in status_choices_localized %}
+          {% if step_val != 'rejected' or issue.status == 'rejected' %}
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 {% if issue.status == step_val %}text-white{% else %}text-[#94A3B8]{% endif %} {% if issue.status == step_val and step_val == 'completed' %}bg-[#14532D]{% elif issue.status == step_val and step_val == 'rejected' %}bg-[#7F1D1D]{% elif issue.status == step_val %}bg-[#4F46E5]{% else %}bg-[#F1F5F9]{% endif %}">
+              {{ forloop.counter }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium {% if issue.status == step_val %}text-[#64748B]{% else %}text-[#94A3B8]{% endif %}">{{ step_label }}</p>
+              {% for h in status_history %}{% if h.new_status == step_val %}
+              <p class="text-[10px] text-[#94A3B8] mt-0.5">{{ h.changed_at|date:"d M Y" }}</p>
+              {% endif %}{% endfor %}
+            </div>
+            {% if issue.status == step_val %}
+            <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0"></div>
+            {% endif %}
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Admin notes -->
+      {% if issue.admin_notes %}
+      <div class="rounded-2xl p-5 border" style="background:#EEF2FF;border-color:#C7D2FE">
+        <h3 class="font-semibold text-sm text-[#3730A3] mb-2 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          {% if LANG == 'hy' %}Նշումներ{% elif LANG == 'fr' %}Notes admin{% else %}Admin Notes{% endif %}
+        </h3>
+        <p class="text-xs text-[#64748B] leading-relaxed">{{ issue.admin_notes }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Share -->
+      <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5" style="box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <h3 class="font-semibold text-sm text-[#0F0D2E] mb-3">
+          {% if LANG == 'hy' %}Կիսվել{% elif LANG == 'fr' %}Partager{% else %}Share{% endif %}
+        </h3>
+        <button
+          data-label="{% if LANG == 'hy' %}Պատճենել հղումը{% elif LANG == 'fr' %}Copier le lien{% else %}Copy Link{% endif %}"
+          data-copied="{% if LANG == 'hy' %}Պատճենված՜{% elif LANG == 'fr' %}Copié !{% else %}Copied!{% endif %}"
+          onclick="var b=this;navigator.clipboard.writeText(window.location.href).then(function(){b.textContent=b.dataset.copied;setTimeout(function(){b.textContent=b.dataset.label;},2000);});"
+          class="w-full btn-ghost text-xs flex items-center justify-center gap-2 mb-3">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          {% if LANG == 'hy' %}Պատճենել հղումը{% elif LANG == 'fr' %}Copier le lien{% else %}Copy Link{% endif %}
+        </button>
+        <a href="/api/issues/{{ issue.pk }}/votes/" target="_blank"
+          class="flex items-center gap-1.5 text-xs text-[#4F46E5] hover:text-[#4338CA] transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          {% if LANG == 'hy' %} Ձայների պատմություն {% elif LANG == 'fr' %}Journal blockchain des votes{% else %}Blockchain vote log{% endif %}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% if issue.latitude and issue.longitude %}
+{{ issue.latitude|json_script:"map-lat" }}
+{{ issue.longitude|json_script:"map-lng" }}
+{% if LANG == 'hy' %}{{ issue.title_hy|json_script:"map-title" }}{% elif LANG == 'fr' %}{{ issue.title_fr|default:issue.title_en|default:issue.title_hy|json_script:"map-title" }}{% else %}{{ issue.title_en|default:issue.title_hy|json_script:"map-title" }}{% endif %}
+{{ status_labels|get_item:issue.status|json_script:"map-status" }}
+{{ issue.status|json_script:"map-status-key" }}
+<script src="{% static 'js/detail-map.js' %}"></script>
+{% endif %}
+{% endblock %}

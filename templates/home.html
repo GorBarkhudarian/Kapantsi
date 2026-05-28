@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% get_current_language as LANG %}
+
+{% block title %}{% if LANG == 'hy' %}Կապանցի — Կապանի քաղաքացիական հարթակ{% elif LANG == 'fr' %}Kapantsi — Plateforme civique pour Kapan{% else %}Kapantsi — Civic Platform for Kapan{% endif %}{% endblock %}
+
+{% block content %}
+<!-- ── HERO ────────────────────────────────────────────────── -->
+<!-- full-page image background -->
+<div style="background-image:url('/static/images/hero-bg.jpg');background-size:cover;background-position:center;background-attachment:fixed">
+
+<section class="relative overflow-hidden" style="background:linear-gradient(135deg,rgba(26,23,80,0.90) 0%,rgba(37,34,96,0.85) 50%,rgba(55,48,163,0.85) 100%)">
+  <!-- Decorative shapes -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-10" style="background:radial-gradient(circle,#818CF8,transparent)"></div>
+    <div class="absolute bottom-0 -left-20 w-72 h-72 rounded-full opacity-10" style="background:radial-gradient(circle,#F97316,transparent)"></div>
+    <!-- Mountain silhouette -->
+    <svg class="absolute bottom-0 left-0 right-0 w-full opacity-5" viewBox="0 0 1440 200" preserveAspectRatio="none" fill="white">
+      <polygon points="0,200 200,60 400,120 600,20 800,90 1000,30 1200,100 1440,50 1440,200"/>
+    </svg>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-20 md:py-28 relative z-10 text-center">
+        <!-- Location pill -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium mb-6"
+          style="background:rgba(255,255,255,0.08);color:#A5B4FC;border:1px solid rgba(255,255,255,0.1)">
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+          {% if LANG == 'hy' %}Կապան, Սյունիք, Հայաստան
+          {% elif LANG == 'fr' %}Kapan, Syunik, Arménie
+          {% else %}Kapan, Syunik, Armenia{% endif %}
+        </div>
+
+        <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight mb-5">
+          Կապան<span style="color:#F97316">ցի</span>
+        </h1>
+        <p class="text-lg md:text-xl text-white leading-relaxed mb-8 mx-auto max-w-2xl" style="opacity:0.92">
+          {% if LANG == 'hy' %}Հաղորդեք համայնքի խնդիրների մասին, քվեարկեք առաջնահերթությունների համար և ստացեք թափանցիկ պատասխաններ համայնքապետարանից։
+          {% elif LANG == 'fr' %}Signalez les problèmes locaux, votez pour les priorités, obtenez des réponses transparentes.
+          {% else %}Report local issues, vote for priorities, and get transparent responses from the municipality.{% endif %}
+        </p>
+
+  </div>
+
+  <!-- Wave separator -->
+  <div class="absolute bottom-0 left-0 right-0">
+    <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" style="display:block">
+      <path d="M0 56L0 28Q240 0 480 18Q720 36 960 14Q1200 0 1440 22L1440 56Z" fill="#F5F7FF"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ── STATS BAR ───────────────────────────────────────────── -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 -mt-2 py-10">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-white rounded-2xl border border-[#E0E7FF] p-6 text-center" style="box-shadow:0 2px 12px rgba(99,102,241,0.07)">
+      <div class="w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center" style="background:#EEF2FF">
+        <svg class="w-5 h-5" style="color:#6366F1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      </div>
+      <div class="text-3xl font-extrabold text-[#000000] mb-1" id="stat-total">—</div>
+      <div class="text-xs text-[#94A3B8] font-medium">{% if LANG == 'hy' %}Ընդհանուր խնդիրների քանակը{% elif LANG == 'fr' %}Problèmes totaux{% else %}Total Issues{% endif %}</div>
+    </div>
+    <div class="bg-white rounded-2xl border border-[#E0E7FF] p-6 text-center" style="box-shadow:0 2px 12px rgba(99,102,241,0.07)">
+      <div class="w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center" style="background:#FFFBEB">
+        <svg class="w-5 h-5" style="color:#F59E0B" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <div class="text-3xl font-extrabold text-[#D97706] mb-1" id="stat-pending">—</div>
+      <div class="text-xs text-[#94A3B8] font-medium">{% if LANG == 'hy' %}Ակտիվ{% elif LANG == 'fr' %}Actifs{% else %}Active{% endif %}</div>
+    </div>
+    <div class="bg-white rounded-2xl border border-[#E0E7FF] p-6 text-center" style="box-shadow:0 2px 12px rgba(99,102,241,0.07)">
+      <div class="w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center" style="background:#D1FAE5">
+        <svg class="w-5 h-5" style="color:#059669" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div class="text-3xl font-extrabold text-[#059669] mb-1" id="stat-completed">—</div>
+      <div class="text-xs text-[#94A3B8] font-medium">{% if LANG == 'hy' %}Լուծված{% elif LANG == 'fr' %}Résolus{% else %}Resolved{% endif %}</div>
+    </div>
+    <div class="bg-white rounded-2xl border border-[#E0E7FF] p-6 text-center" style="box-shadow:0 2px 12px rgba(99,102,241,0.07)">
+      <div class="w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center" style="background:#EEF2FF">
+        <svg class="w-5 h-5" style="color:#6366F1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+      </div>
+      <div class="text-3xl font-extrabold text-[#000000] mb-1" id="stat-votes">—</div>
+      <div class="text-xs text-[#94A3B8] font-medium">{% if LANG == 'hy' %}Քվեարկված{% elif LANG == 'fr' %}Votes exprimés{% else %}Votes Cast{% endif %}</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ────────────────────────────────────────── -->
+<section class="py-16 md:py-20" style="background:rgba(255,255,255,0.82)">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-extrabold tracking-tight mb-3" style="color:#0F0D2E">
+        {% if LANG == 'hy' %}Ինչպես է  աշխատում{% elif LANG == 'fr' %}Comment ça marche{% else %}How it works{% endif %}
+      </h2>
+      <p class="max-w-xl mx-auto font-medium" style="color:#334155">
+        {% if LANG == 'hy' %}Ընդամենը 3 քայլ ավելի բարեկարգ քաղաք ունենալու համար{% elif LANG == 'fr' %}Trois étapes pour améliorer votre ville{% else %}Three simple steps to improve your city{% endif %}
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 relative">
+      <!-- Connecting line (desktop) -->
+      <div class="hidden md:block absolute top-14 left-1/4 right-1/4 h-px" style="background:linear-gradient(to right,#E0E7FF,#6366F1,#E0E7FF)"></div>
+
+      <!-- Step 1 -->
+      <div class="relative text-center px-4">
+        <div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center relative z-10" style="background:#FFFBEB;box-shadow:0 4px 20px rgba(245,158,11,0.18)">
+          <svg class="w-8 h-8" style="color:#F59E0B" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        </div>
+        <div class="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold mb-3" style="background:#6366F1">1</div>
+        <h3 class="text-base font-bold mb-2" style="color:#0F0D2E">{% if LANG == 'hy' %}Հաղորդի՛ր{% elif LANG == 'fr' %}Signalez{% else %}Report{% endif %}</h3>
+        <p class="text-sm leading-relaxed" style="color:#1E293B">
+          {% if LANG == 'hy' %}Հաղորդի՛ր ճանապարհների, ջրամատակարարման, էլեկտրաէներգիայի, աղբահանության կամ անվտանգության խնդիրների մասին՝ կցելով լուսանկարներ և նշելով տեղակայման վայրը քարտեզի վրա:
+          {% elif LANG == 'fr' %}Signalez des problèmes de route, d'eau, d'électricité, de déchets ou de sécurité avec photos.
+          {% else %}Report road, water, electricity, waste or safety issues with photos and a location pin.{% endif %}
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="relative text-center px-4">
+        <div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center relative z-10" style="background:#EEF2FF;box-shadow:0 4px 20px rgba(99,102,241,0.18)">
+          <svg class="w-8 h-8" style="color:#6366F1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+        </div>
+        <div class="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold mb-3" style="background:#6366F1">2</div>
+        <h3 class="text-base font-bold mb-2" style="color:#0F0D2E">{% if LANG == 'hy' %}Քվեարկի՛ր{% elif LANG == 'fr' %}Votez{% else %}Vote{% endif %}</h3>
+        <p class="text-sm leading-relaxed" style="color:#1E293B">
+          {% if LANG == 'hy' %}Քվեարկի՛ր ամենակարևոր խնդիրների օգտին։ Քվեարկությունը թափանցիկ է և յուրաքանչյուր գրանցված անձ կարողանում է քվեարկել 1 խնդրի շուրջ միայն 1 անգամ:
+          {% elif LANG == 'fr' %}Votez pour les problèmes les plus importants. Enregistré sur blockchain, transparent.
+          {% else %}Vote on issues that matter most. Blockchain-logged, transparent, one vote per verified citizen.{% endif %}
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="relative text-center px-4">
+        <div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center relative z-10" style="background:#DCFCE7;box-shadow:0 4px 16px rgba(34,197,94,0.15)">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div class="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold mb-3" style="background:#6366F1">3</div>
+        <h3 class="text-base font-bold mb-2" style="color:#0F0D2E">{% if LANG == 'hy' %}Հետևի՛ր{% elif LANG == 'fr' %}Suivez{% else %}Track{% endif %}</h3>
+        <p class="text-sm leading-relaxed" style="color:#1E293B">
+          {% if LANG == 'hy' %}Հետևի՛ր քո հաղորդած խնդիրների ընթացքին՝ «Սպասման մեջ» փուլից մինչև «Ավարտված է», և ստացի՛ր ծանուցումներ:
+          {% elif LANG == 'fr' %}Suivez l'état de vos problèmes signalés et recevez des notifications.
+          {% else %}Track your reported issues from Pending to Completed and receive notifications.{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── RECENT ISSUES ───────────────────────────────────────── -->
+<section class="py-16" style="background:rgba(241,245,249,0.55)">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+    <!-- Section header — mirrors sort/count bar style -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#0F0D2E,#1E1B4B);box-shadow:0 2px 8px rgba(15,13,46,0.25)">
+          <svg class="w-3.5 h-3.5" style="color:#A5B4FC" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        </div>
+        <h2 class="text-xl font-bold tracking-tight text-[#0F172A]">
+          {% if LANG == 'hy' %}Վերջին Հաղորդումները{% elif LANG == 'fr' %}Problèmes récents{% else %}Recent Issues{% endif %}
+        </h2>
+      </div>
+      <a href="/issues/" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors">
+        {% if LANG == 'hy' %}&#x200C; Տեսնել բոլորը{% elif LANG == 'fr' %}Voir tout{% else %}View all{% endif %}
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="recent-issues">
+      <!-- Loading skeletons — match card structure -->
+      {% for i in "123" %}
+      <div class="bg-white rounded-2xl overflow-hidden animate-pulse" style="border:1px solid #E2E8F0;border-top:3px solid #E2E8F0;box-shadow:0 2px 8px rgba(0,0,0,0.05)">
+        <div class="h-44 bg-[#F1F5F9]"></div>
+        <div class="p-5">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="h-5 w-20 rounded-full bg-[#F1F5F9]"></div>
+            <div class="h-5 w-16 rounded-full bg-[#F1F5F9]"></div>
+          </div>
+          <div class="h-4 bg-[#F1F5F9] rounded mb-2"></div>
+          <div class="h-4 bg-[#F1F5F9] rounded w-3/4 mb-4"></div>
+          <div class="h-px bg-[#F1F5F9] mb-3"></div>
+          <div class="flex justify-between">
+            <div class="h-4 w-16 bg-[#F1F5F9] rounded"></div>
+            <div class="h-4 w-20 bg-[#F1F5F9] rounded"></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+<!-- ── CTA BANNER ─────────────────────────────────────────── -->
+<section class="py-16 md:py-20" style="background:linear-gradient(135deg,#0d089b 0%,#1e293b 45%,#6366F1 100%)">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-5" style="background:rgba(255,255,255,0.15)">
+      <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+    </div>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
+      {% if LANG == 'hy' %}Դարձի՛ր Կապանի ձայնը{% elif LANG == 'fr' %}Devenez la Voix de Kapan{% else %}Become the Voice of Kapan{% endif %}
+    </h2>
+    <p class="text-[#C7D2FE] text-lg mb-8 max-w-2xl mx-auto">
+      {% if LANG == 'hy' %}Գրանցվի՛ր, հաղորդի՛ր, քվեարկի՛ր։ Կառուցիր քաղաքդ, Կապանցի՛:
+      {% elif LANG == 'fr' %}Inscris-toi, signale, vote. Construis ta ville, Kapantsi!
+      {% else %}Sign up, report, vote. Build your city, Kapantsi!{% endif %}
+    </p>
+    </div>
+  </div>
+</section>
+
+</div><!-- /full-page bg -->
+{% endblock %}
+
+{% block extra_js %}
+<script>window.KAPANTSI_LANG = "{{ LANG }}";</script>
+<script src="{% static 'js/home.js' %}"></script>
+{% if False %}{# ── original inline JS removed — lives in static/js/home.js ── #}
+<script>
+const LANG = "{{ LANG }}";
+
+// Load stats from API
+fetch('/api/dashboard/stats/')
+  .then(r => r.ok ? r.json() : null)
+  .then(data => {
+    if (!data) return;
+    document.getElementById('stat-total').textContent = data.total_issues || 0;
+    const by = data.by_status || {};
+    const active = (by.pending || 0) + (by.under_review || 0) + (by.in_progress || 0);
+    document.getElementById('stat-pending').textContent = active;
+    document.getElementById('stat-completed').textContent = by.completed || 0;
+    document.getElementById('stat-votes').textContent = data.total_votes || 0;
+  })
+  .catch(() => {});
+
+// ── Per-category design tokens — mirrors list.html exactly ──
+const CAT_BORDER       = { road:'#4F46E5', water:'#1D4ED8', electricity:'#D97706', waste:'#16A34A', safety:'#DC2626', other:'#64748B' };
+const CAT_BG_GRAD      = { road:'linear-gradient(135deg,#EEF2FF,#E0E7FF)', water:'linear-gradient(135deg,#DBEAFE,#BFDBFE)', electricity:'linear-gradient(135deg,#FEF3C7,#FDE68A)', waste:'linear-gradient(135deg,#DCFCE7,#BBF7D0)', safety:'linear-gradient(135deg,#FEE2E2,#FECACA)', other:'linear-gradient(135deg,#F1F5F9,#E2E8F0)' };
+const CAT_BADGE_BG     = { road:'#EEF2FF', water:'#DBEAFE', electricity:'#FEF3C7', waste:'#DCFCE7', safety:'#FEE2E2', other:'#F1F5F9' };
+const CAT_BADGE_COLOR  = { road:'#4338CA', water:'#1E40AF', electricity:'#92400E', waste:'#14532D', safety:'#991B1B', other:'#334155' };
+const CAT_BADGE_BORDER = { road:'#E0E7FF', water:'#BFDBFE', electricity:'#FDE68A', waste:'#BBF7D0', safety:'#FECACA', other:'#E2E8F0' };
+const CAT_ICON_PATH    = {
+  road:        'd="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"',
+  water:       'd="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"',
+  electricity: 'd="M13 10V3L4 14h7v7l9-11h-7z"',
+  waste:       'd="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"',
+  safety:      'd="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"',
+  other:       'd="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"'
+};
+
+const STATUS_CSS        = { pending:'status-pending', under_review:'status-under_review', in_progress:'status-in_progress', completed:'status-completed', rejected:'status-rejected' };
+const STATUS_LABELS_HY  = { pending:'Սպասվում է', under_review:'Ուսումնասիրվում է', in_progress:'Ընթացքի մեջ է', completed:'Ավարտվել է', rejected:'Մերժվել է' };
+const STATUS_LABELS_EN  = { pending:'Pending', under_review:'Under Review', in_progress:'In Progress', completed:'Completed', rejected:'Rejected' };
+const STATUS_LABELS_FR  = { pending:'En attente', under_review:'En révision', in_progress:'En cours', completed:'Terminé', rejected:'Rejeté' };
+
+fetch('/api/issues/?ordering=-created_at&page_size=6')
+  .then(r => r.json())
+  .then(data => {
+    const items = data.results || data;
+    const container = document.getElementById('recent-issues');
+    if (!items || items.length === 0) {
+      container.innerHTML = `<div class="col-span-3 text-center py-16 text-[#94A3B8]">
+        <div class="text-5xl mb-3">&#128269;</div>
+        <p>${LANG === 'hy' ? 'Դեռ խնդիրներ չկան։' : LANG === 'fr' ? 'Aucun problème pour l\'instant. Soyez le premier à signaler !' : 'No issues yet. Be the first to report!'}</p>
+      </div>`;
+      return;
+    }
+    const STATUS_LABELS = LANG === 'hy' ? STATUS_LABELS_HY : LANG === 'fr' ? STATUS_LABELS_FR : STATUS_LABELS_EN;
+    container.innerHTML = items.slice(0, 6).map(issue => {
+      const cat         = issue.category || 'other';
+      const border      = CAT_BORDER[cat]       || '#64748B';
+      const bgGrad      = CAT_BG_GRAD[cat]      || CAT_BG_GRAD.other;
+      const badgeBg     = CAT_BADGE_BG[cat]     || '#F1F5F9';
+      const badgeColor  = CAT_BADGE_COLOR[cat]  || '#334155';
+      const badgeBorder = CAT_BADGE_BORDER[cat] || '#E2E8F0';
+      const iconPath    = CAT_ICON_PATH[cat]    || CAT_ICON_PATH.other;
+      const statusCss   = STATUS_CSS[issue.status]    || 'status-pending';
+      const statusLabel = STATUS_LABELS[issue.status] || issue.status;
+      const title       = LANG === 'hy' ? (issue.title_hy || '') : LANG === 'fr' ? (issue.title_fr || issue.title_en || issue.title_hy || '') : (issue.title_en || issue.title_hy || '');
+      const dateStr     = new Date(issue.created_at).toLocaleDateString(LANG === 'hy' ? 'hy-AM' : LANG === 'fr' ? 'fr-FR' : 'en-GB');
+
+      const imgSrc = issue.first_image || issue.image;
+      const imgHtml = imgSrc
+        ? `<div class="h-44 overflow-hidden relative flex-shrink-0">
+             <img src="${imgSrc}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+             <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(15,13,46,0.5) 0%,transparent 55%)"></div>
+           </div>`
+        : `<div class="h-44 flex items-center justify-center relative overflow-hidden flex-shrink-0" style="background:${bgGrad}">
+             <div class="absolute inset-0 opacity-[0.07]" style="background-image:radial-gradient(circle,${border} 1px,transparent 1px);background-size:20px 20px"></div>
+             <svg class="w-14 h-14 relative z-10 transition-transform duration-300 group-hover:scale-110" style="color:${border};opacity:0.3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" ${iconPath}/>
+             </svg>
+           </div>`;
+
+      const locationHtml = issue.location_address
+        ? `<p class="flex items-center gap-1.5 text-xs text-[#94A3B8] mb-4 truncate">
+             <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+             <span class="truncate">${(issue.location_address || '').substring(0, 38)}${(issue.location_address || '').length > 38 ? '…' : ''}</span>
+           </p>`
+        : `<div class="mb-4"></div>`;
+
+      return `
+        <a href="/issues/${issue.id}/"
+          class="bg-white rounded-2xl overflow-hidden flex flex-col group"
+          style="border:1px solid #E2E8F0;border-top:3px solid ${border};box-shadow:0 2px 8px rgba(0,0,0,0.05),0 1px 2px rgba(0,0,0,0.04);transition:box-shadow 0.2s,transform 0.2s"
+          onmouseover="this.style.boxShadow='0 12px 32px rgba(15,13,46,0.12),0 2px 8px rgba(15,13,46,0.06)';this.style.transform='translateY(-3px)'"
+          onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05),0 1px 2px rgba(0,0,0,0.04)';this.style.transform='translateY(0)'">
+          ${imgHtml}
+          <div class="flex flex-col flex-1 p-5">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder}">${issue.category_display || cat}</span>
+              <span class="${statusCss} text-xs">${statusLabel}</span>
+            </div>
+            <h3 class="text-[#0F172A] font-bold text-[15px] leading-snug line-clamp-2 mb-2 flex-1" style="transition:color 0.15s" onmouseover="this.style.color='#4F46E5'" onmouseout="this.style.color='#0F172A'">${title}</h3>
+            ${locationHtml}
+            <div class="flex items-center justify-between pt-3 mt-auto" style="border-top:1px solid #F1F5F9">
+              <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1 text-xs font-bold" style="color:${border}">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+                  ${issue.upvote_count || 0}
+                </span>
+                <span class="flex items-center gap-1 text-xs text-[#94A3B8]">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                  ${issue.comments_count || 0}
+                </span>
+              </div>
+              <span class="text-xs text-[#94A3B8]">${dateStr}</span>
+            </div>
+          </div>
+        </a>`;
+    }).join('');
+  })
+  .catch(() => {
+    document.getElementById('recent-issues').innerHTML = `<div class="col-span-3 text-center py-12 text-[#94A3B8]">${LANG === 'hy' ? 'Չհաջողվեց բեռնել։' : LANG === 'fr' ? 'Impossible de charger les problèmes.' : 'Could not load issues.'}</div>`;
+  });
+</script>
+{% endif %}
+{% endblock %}

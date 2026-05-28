@@ -1,0 +1,361 @@
+﻿{% extends 'base.html' %}
+{% load i18n static %}
+{% get_current_language as LANG %}
+
+{% block title %}{% if LANG == 'hy' %}Խնդիրներ — Կապանցի{% elif LANG == 'fr' %}Problèmes — Kapantsi{% else %}Issues — Kapantsi{% endif %}{% endblock %}
+
+{% block content %}
+<!-- full-page image background -->
+<div style="background-image:url('/static/images/hero-bg.jpg');background-size:cover;background-position:center;background-attachment:fixed;min-height:100vh">
+
+<!-- ═══════════════════════════════════════════════════
+     HERO BAND
+═══════════════════════════════════════════════════ -->
+<div style="background:linear-gradient(135deg,rgba(15,13,46,0.90) 0%,rgba(30,27,75,0.88) 55%,rgba(49,46,129,0.88) 100%);border-bottom:1px solid rgba(99,102,241,0.18);position:relative;overflow:hidden">
+  <!-- Decorative orbs -->
+  <div style="position:absolute;top:-60px;left:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.18) 0%,transparent 70%);pointer-events:none"></div>
+  <div style="position:absolute;bottom:-80px;right:5%;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.14) 0%,transparent 70%);pointer-events:none"></div>
+  <div style="position:absolute;top:20px;right:30%;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,0.07) 0%,transparent 70%);pointer-events:none"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14" style="position:relative;z-index:1">
+    <div class="relative flex items-center justify-center">
+
+      <!-- Centered title -->
+      <div class="flex flex-col items-center text-center gap-3">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:rgba(99,102,241,0.22);border:1px solid rgba(165,180,252,0.35);box-shadow:0 0 0 6px rgba(99,102,241,0.07)">
+          <svg class="w-6 h-6" style="color:#A5B4FC" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </div>
+        <h1 class="text-4xl font-extrabold tracking-tight text-white">
+          {% if LANG == 'hy' %}Խնդիրներ{% elif LANG == 'fr' %}Problèmes{% else %}Issues{% endif %}
+        </h1>
+        <p class="text-sm max-w-md leading-relaxed" style="color:rgba(165,180,252,0.75)">
+          {% if LANG == 'hy' %}Կապան համայնքի բնակիչների կողմից հաղորդված խնդիրները{% elif LANG == 'fr' %}Problèmes signalés depuis Kapan et les villages environnants{% else %}Reported issues from Kapan city and surrounding villages{% endif %}
+        </p>
+      </div>
+
+
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════════ -->
+<div style="background:rgba(241,245,249,0.55)">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- ─── FILTER CARD ─── -->
+  <div class="bg-white rounded-2xl mb-6 overflow-hidden" style="border:1.5px solid #CBD5E1;box-shadow:0 4px 20px rgba(15,13,46,0.09),0 1px 3px rgba(15,13,46,0.05)">
+    <form method="get">
+
+      <!-- ── Section title ── -->
+      <div class="flex items-center gap-2.5 px-5 pt-3.5 pb-3" style="background:linear-gradient(to right,#F5F3FF,#EEF2FF,#F8FAFF);border-bottom:1px solid #E8EDFB">
+        <div class="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#4F46E5,#6366F1);box-shadow:0 2px 6px rgba(79,70,229,0.35)">
+          <svg class="w-3 h-3" style="color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+          </svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest" style="color:#3730A3">{% if LANG == 'hy' %}Ֆիլտրեր{% elif LANG == 'fr' %}Filtres{% else %}Filters{% endif %}</span>
+        <div class="flex-1"></div>
+        <!-- Apply button — lives in the header bar -->
+        <button type="submit"
+          class="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-white rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px active:translate-y-0"
+          style="background:linear-gradient(135deg,#4F46E5,#6366F1);box-shadow:0 2px 8px rgba(79,70,229,0.35),0 0 0 1px rgba(79,70,229,0.12)">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          {% if LANG == 'hy' %}Կիրառել{% elif LANG == 'fr' %}Appliquer{% else %}Apply{% endif %}
+        </button>
+      </div>
+
+      <!-- ── Field columns ── -->
+      <div class="grid grid-cols-2 lg:grid-cols-4" style="border-bottom:1.5px solid #E2E8F0">
+
+        <!-- Category -->
+        <div class="flex flex-col items-center px-4 py-5 transition-colors duration-150 hover:bg-[#F8FAFF]" style="border-right:1.5px solid #E2E8F0">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-2.5" style="background:#EEF2FF;border:1px solid #C7D2FE;box-shadow:0 1px 4px rgba(79,70,229,0.1)">
+            <svg class="w-4 h-4" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a2 2 0 012-2z"/>
+            </svg>
+          </div>
+          <label class="text-[11px] font-bold uppercase tracking-widest mb-2.5 text-center" style="color:#374151">
+            {% if LANG == 'hy' %}Կարգ{% elif LANG == 'fr' %}Catégorie{% else %}Category{% endif %}
+          </label>
+          <select name="category" class="form-select text-xs w-full text-center" style="border:1.5px solid #CBD5E1;border-radius:8px;background:#fff;color:#0F172A;padding:6px 8px;font-weight:500;transition:border-color 0.15s,box-shadow 0.15s">
+            <option value="">{% if LANG == 'hy' %}Բոլորը{% elif LANG == 'fr' %}Toutes{% else %}All{% endif %}</option>
+            {% for val, label in category_choices %}<option value="{{ val }}" {% if val == selected_category %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+
+        <!-- Status -->
+        <div class="flex flex-col items-center px-4 py-5 transition-colors duration-150 hover:bg-[#F8FAFF]" style="border-right:1.5px solid #E2E8F0">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-2.5" style="background:#EEF2FF;border:1px solid #C7D2FE;box-shadow:0 1px 4px rgba(79,70,229,0.1)">
+            <svg class="w-4 h-4" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <label class="text-[11px] font-bold uppercase tracking-widest mb-2.5 text-center" style="color:#374151">
+            {% if LANG == 'hy' %}Կարգավիճակ{% elif LANG == 'fr' %}Statut{% else %}Status{% endif %}
+          </label>
+          <select name="status" class="form-select text-xs w-full text-center" style="border:1.5px solid #CBD5E1;border-radius:8px;background:#fff;color:#0F172A;padding:6px 8px;font-weight:500;transition:border-color 0.15s,box-shadow 0.15s">
+            <option value="">{% if LANG == 'hy' %}Բոլորը{% elif LANG == 'fr' %}Tous{% else %}All{% endif %}</option>
+            {% for val, label in status_choices %}<option value="{{ val }}" {% if val == selected_status %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+
+        <!-- Area -->
+        <div class="flex flex-col items-center px-4 py-5 transition-colors duration-150 hover:bg-[#F8FAFF]" style="border-right:1.5px solid #E2E8F0">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-2.5" style="background:#EEF2FF;border:1px solid #C7D2FE;box-shadow:0 1px 4px rgba(79,70,229,0.1)">
+            <svg class="w-4 h-4" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          <label class="text-[11px] font-bold uppercase tracking-widest mb-2.5 text-center" style="color:#374151">
+            {% if LANG == 'hy' %}Շրջան{% elif LANG == 'fr' %}Localisation{% else %}Location{% endif %}
+          </label>
+          <select name="area" class="form-select text-xs w-full text-center" style="border:1.5px solid #CBD5E1;border-radius:8px;background:#fff;color:#0F172A;padding:6px 8px;font-weight:500;transition:border-color 0.15s,box-shadow 0.15s">
+            <option value="">{% if LANG == 'hy' %}Բոլորը{% elif LANG == 'fr' %}Toutes{% else %}All{% endif %}</option>
+            {% for val, label in area_choices %}<option value="{{ val }}" {% if val == selected_area %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+
+        <!-- Search -->
+        <div class="flex flex-col items-center px-4 py-5 transition-colors duration-150 hover:bg-[#F8FAFF]">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-2.5" style="background:#EEF2FF;border:1px solid #C7D2FE;box-shadow:0 1px 4px rgba(79,70,229,0.1)">
+            <svg class="w-4 h-4" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <label class="text-[11px] font-bold uppercase tracking-widest mb-2.5 text-center" style="color:#374151">
+            {% if LANG == 'hy' %}Որոնել{% elif LANG == 'fr' %}Rechercher{% else %}Search{% endif %}
+          </label>
+          <div class="relative w-full">
+            <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style="color:#6B7280" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" name="search" value="{{ search }}"
+              placeholder="{% if LANG == 'hy' %}Որոնել...{% elif LANG == 'fr' %}Rechercher...{% else %}Search issues...{% endif %}"
+              class="form-input pl-8 text-xs w-full" style="border:1.5px solid #CBD5E1;border-radius:8px;background:#fff;color:#0F172A;padding:6px 8px 6px 30px;font-weight:500;transition:border-color 0.15s,box-shadow 0.15s">
+          </div>
+        </div>
+
+      </div>
+
+
+    </form>
+  </div>
+
+  <!-- ─── SORT + COUNT BAR ─── -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-sm font-bold" style="background:linear-gradient(135deg,#0F0D2E,#1E1B4B);color:#A5B4FC;box-shadow:0 2px 8px rgba(15,13,46,0.25)">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        {% if issues %}{{ issues|length }}{% else %}0{% endif %}
+      </span>
+      <span class="text-sm font-semibold text-[#475569]">{% if LANG == 'hy' %}Խնդիր{% elif LANG == 'fr' %}Problème{{ issues|length|pluralize }}{% else %}Issues{{ issues|length|pluralize }}{% endif %}</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-semibold text-[#475569]">{% if LANG == 'hy' %}Տեսակավորել ըստ։{% elif LANG == 'fr' %}Trier :{% else %}Sort:{% endif %}</span>
+      <div class="flex items-center gap-1 p-1 bg-white rounded-xl" style="border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,13,46,0.05)">
+        <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}{% if request.GET.area %}area={{ request.GET.area }}&{% endif %}{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}ordering=-created_at"
+          class="text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-all duration-150 {% if request.GET.ordering == '-created_at' or not request.GET.ordering %}text-white{% else %}text-[#64748B] hover:text-[#1E293B] hover:bg-[#F8FAFC]{% endif %}"
+          {% if request.GET.ordering == '-created_at' or not request.GET.ordering %}style="background:linear-gradient(135deg,#4F46E5,#6366F1);box-shadow:0 1px 5px rgba(79,70,229,0.3)"{% endif %}>
+          {% if LANG == 'hy' %}Վերջին {% elif LANG == 'fr' %}Récent{% else %}Newest{% endif %}
+        </a>
+        <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status }}&{% endif %}{% if request.GET.area %}area={{ request.GET.area }}&{% endif %}{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}ordering=-upvote_count"
+          class="text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-all duration-150 {% if request.GET.ordering == '-upvote_count' %}text-white{% else %}text-[#64748B] hover:text-[#1E293B] hover:bg-[#F8FAFC]{% endif %}"
+          {% if request.GET.ordering == '-upvote_count' %}style="background:linear-gradient(135deg,#4F46E5,#6366F1);box-shadow:0 1px 5px rgba(79,70,229,0.3)"{% endif %}>
+          {% if LANG == 'hy' %}Ձայներ{% elif LANG == 'fr' %}Votes{% else %}Most Voted{% endif %}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ISSUE GRID ─── -->
+  {% if issues %}
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+    {% for issue in issues %}
+    <a href="/issues/{{ issue.pk }}/"
+      class="bg-white rounded-2xl overflow-hidden flex flex-col group transition-all duration-250"
+      {% if issue.category == 'road' %}style="border:1.5px solid #C7D2FE;border-top:3px solid #4F46E5;box-shadow:0 2px 10px rgba(79,70,229,0.08),0 1px 3px rgba(15,13,46,0.05)"
+      {% elif issue.category == 'water' %}style="border:1.5px solid #BFDBFE;border-top:3px solid #1D4ED8;box-shadow:0 2px 10px rgba(29,78,216,0.08),0 1px 3px rgba(15,13,46,0.05)"
+      {% elif issue.category == 'electricity' %}style="border:1.5px solid #FDE68A;border-top:3px solid #D97706;box-shadow:0 2px 10px rgba(217,119,6,0.08),0 1px 3px rgba(15,13,46,0.05)"
+      {% elif issue.category == 'waste' %}style="border:1.5px solid #BBF7D0;border-top:3px solid #16A34A;box-shadow:0 2px 10px rgba(22,163,74,0.08),0 1px 3px rgba(15,13,46,0.05)"
+      {% elif issue.category == 'safety' %}style="border:1.5px solid #FECACA;border-top:3px solid #DC2626;box-shadow:0 2px 10px rgba(220,38,38,0.08),0 1px 3px rgba(15,13,46,0.05)"
+      {% else %}style="border:1.5px solid #CBD5E1;border-top:3px solid #64748B;box-shadow:0 2px 10px rgba(100,116,139,0.08),0 1px 3px rgba(15,13,46,0.05)"
+      {% endif %}
+      onmouseover="this.style.boxShadow='0 12px 32px rgba(15,13,46,0.12),0 2px 8px rgba(15,13,46,0.06)';this.style.transform='translateY(-3px)'"
+      onmouseout="this.style.boxShadow='';this.style.transform='translateY(0)'">
+
+      <!-- Image / placeholder -->
+      {% with first_extra=issue.extra_images.first %}
+      {% if issue.image or first_extra %}
+      <div class="h-44 overflow-hidden relative flex-shrink-0">
+        {% if issue.image %}
+        <img src="{{ issue.image.url }}" alt="{{ issue.title_hy }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        {% else %}
+        <img src="{{ first_extra.image.url }}" alt="{{ issue.title_hy }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        {% endif %}
+        <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(15,13,46,0.5) 0%,transparent 55%)"></div>
+      </div>
+      {% else %}
+      <div class="h-44 flex items-center justify-center relative overflow-hidden flex-shrink-0"
+        {% if issue.category == 'road' %}style="background:linear-gradient(135deg,#EEF2FF,#E0E7FF)"
+        {% elif issue.category == 'water' %}style="background:linear-gradient(135deg,#DBEAFE,#BFDBFE)"
+        {% elif issue.category == 'electricity' %}style="background:linear-gradient(135deg,#FEF3C7,#FDE68A)"
+        {% elif issue.category == 'waste' %}style="background:linear-gradient(135deg,#DCFCE7,#BBF7D0)"
+        {% elif issue.category == 'safety' %}style="background:linear-gradient(135deg,#FEE2E2,#FECACA)"
+        {% else %}style="background:linear-gradient(135deg,#F1F5F9,#E2E8F0)"
+        {% endif %}>
+        <div class="absolute inset-0 opacity-[0.07]"
+          {% if issue.category == 'road' %}style="background-image:radial-gradient(circle,#4F46E5 1px,transparent 1px);background-size:20px 20px"
+          {% elif issue.category == 'water' %}style="background-image:radial-gradient(circle,#1D4ED8 1px,transparent 1px);background-size:20px 20px"
+          {% elif issue.category == 'electricity' %}style="background-image:radial-gradient(circle,#D97706 1px,transparent 1px);background-size:20px 20px"
+          {% elif issue.category == 'waste' %}style="background-image:radial-gradient(circle,#16A34A 1px,transparent 1px);background-size:20px 20px"
+          {% elif issue.category == 'safety' %}style="background-image:radial-gradient(circle,#DC2626 1px,transparent 1px);background-size:20px 20px"
+          {% else %}style="background-image:radial-gradient(circle,#64748B 1px,transparent 1px);background-size:20px 20px"
+          {% endif %}></div>
+        <svg class="w-14 h-14 relative z-10 transition-transform duration-300 group-hover:scale-110"
+          {% if issue.category == 'road' %}style="color:#4F46E5;opacity:0.3"
+          {% elif issue.category == 'water' %}style="color:#1D4ED8;opacity:0.3"
+          {% elif issue.category == 'electricity' %}style="color:#D97706;opacity:0.3"
+          {% elif issue.category == 'waste' %}style="color:#16A34A;opacity:0.3"
+          {% elif issue.category == 'safety' %}style="color:#DC2626;opacity:0.3"
+          {% else %}style="color:#64748B;opacity:0.3"
+          {% endif %}
+          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {% if issue.category == 'road' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+          {% elif issue.category == 'water' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/>
+          {% elif issue.category == 'electricity' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          {% elif issue.category == 'waste' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          {% elif issue.category == 'safety' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          {% else %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          {% endif %}
+        </svg>
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      <!-- Card body -->
+      <div class="flex flex-col flex-1 p-5">
+
+        <!-- Badges row -->
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
+            {% if issue.category == 'road' %}style="background:#EEF2FF;color:#4338CA;border:1px solid #E0E7FF"
+            {% elif issue.category == 'water' %}style="background:#DBEAFE;color:#1E40AF;border:1px solid #BFDBFE"
+            {% elif issue.category == 'electricity' %}style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A"
+            {% elif issue.category == 'waste' %}style="background:#DCFCE7;color:#14532D;border:1px solid #BBF7D0"
+            {% elif issue.category == 'safety' %}style="background:#FEE2E2;color:#991B1B;border:1px solid #FECACA"
+            {% else %}style="background:#F1F5F9;color:#334155;border:1px solid #E2E8F0"
+            {% endif %}>
+            {{ issue.get_category_label }}
+          </span>
+          <span class="status-{{ issue.status }} text-xs">{{ issue.get_status_label }}</span>
+        </div>
+
+        <!-- Title -->
+        <h3 class="text-[#0F172A] font-bold text-[15px] leading-snug line-clamp-2 mb-2 group-hover:text-[#4F46E5] transition-colors duration-150 flex-1">
+          {% if LANG == 'hy' %}{{ issue.title_hy }}{% elif LANG == 'fr' %}{{ issue.title_en|default:issue.title_hy }}{% else %}{{ issue.title_en|default:issue.title_hy }}{% endif %}
+        </h3>
+
+        <!-- Location -->
+        {% if issue.location_address %}
+        <p class="flex items-center gap-1.5 text-xs font-medium mb-4 truncate" style="color:#64748B">
+          <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="truncate">{{ issue.location_address|truncatechars:38 }}</span>
+        </p>
+        {% else %}
+        <div class="mb-4"></div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between pt-3 mt-auto" style="border-top:1.5px solid #E2E8F0">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1 text-xs font-bold"
+              {% if issue.category == 'road' %}style="color:#4F46E5"
+              {% elif issue.category == 'water' %}style="color:#1D4ED8"
+              {% elif issue.category == 'electricity' %}style="color:#D97706"
+              {% elif issue.category == 'waste' %}style="color:#16A34A"
+              {% elif issue.category == 'safety' %}style="color:#DC2626"
+              {% else %}style="color:#64748B"
+              {% endif %}>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+              {{ issue.upvote_count }}
+            </span>
+            <span class="flex items-center gap-1 text-xs font-medium" style="color:#64748B">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              {{ issue.comments.count }}
+            </span>
+          </div>
+          <span class="text-xs font-medium" style="color:#64748B">{{ issue.created_at|date:"d M Y" }}</span>
+        </div>
+
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- ─── PAGINATION ─── -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-10 gap-1.5">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.area %}&area={{ request.GET.area }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+      class="inline-flex items-center gap-1.5 px-4 py-2 bg-white rounded-xl text-sm font-semibold text-[#64748B] hover:text-[#4F46E5] transition-all"
+      style="border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,13,46,0.05)">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      {% if LANG == 'hy' %}Նախ.{% elif LANG == 'fr' %}Préc.{% else %}Prev{% endif %}
+    </a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <span class="px-4 py-2 rounded-xl text-sm font-bold text-white" style="background:linear-gradient(135deg,#4F46E5,#6366F1);box-shadow:0 2px 10px rgba(79,70,229,0.35)">{{ num }}</span>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <a href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.area %}&area={{ request.GET.area }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+        class="px-4 py-2 bg-white rounded-xl text-sm font-semibold text-[#64748B] hover:text-[#4F46E5] transition-all"
+        style="border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,13,46,0.05)">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.area %}&area={{ request.GET.area }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+      class="inline-flex items-center gap-1.5 px-4 py-2 bg-white rounded-xl text-sm font-semibold text-[#64748B] hover:text-[#4F46E5] transition-all"
+      style="border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,13,46,0.05)">
+      {% if LANG == 'hy' %}Հաջ.{% elif LANG == 'fr' %}Suiv.{% else %}Next{% endif %}
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- ─── EMPTY STATE ─── -->
+  <div class="flex flex-col items-center text-center py-24">
+    <div class="w-20 h-20 rounded-3xl mx-auto mb-5 flex items-center justify-center" style="background:linear-gradient(135deg,#EEF2FF,#E0E7FF);box-shadow:0 8px 28px rgba(99,102,241,0.15),0 0 0 6px rgba(99,102,241,0.06)">
+      <svg class="w-10 h-10" style="color:#818CF8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    </div>
+    <h3 class="text-lg font-bold text-[#0F172A] mb-2">
+      {% if LANG == 'hy' %}Խնդիրներ չեն գտնվել{% elif LANG == 'fr' %}Aucun problème trouvé{% else %}No issues found{% endif %}
+    </h3>
+    <p class="text-sm text-[#64748B] max-w-xs mx-auto mb-7 leading-relaxed">
+      {% if LANG == 'hy' %}Հաղորդել նոր խնդրի մասին{% elif LANG == 'fr' %}Essayez de modifier les filtres ou signalez un nouveau problème{% else %}Try changing the filters or be the first to report an issue{% endif %}
+    </p>
+    <div class="flex items-center gap-3">
+      <a href="/issues/" class="btn-ghost text-sm px-5 py-2.5">
+        {% if LANG == 'hy' %}Մաքրել ֆիլտրերը{% elif LANG == 'fr' %}Effacer les filtres{% else %}Clear filters{% endif %}
+      </a>
+      <a href="/issues/new/"
+        class="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl text-white transition-all hover:opacity-90"
+        style="background:linear-gradient(135deg,#FBBF24,#F59E0B);box-shadow:0 4px 14px rgba(251,191,36,0.4)">
+        + {% if LANG == 'hy' %}Հաղորդել{% elif LANG == 'fr' %}Signaler{% else %}Report an Issue{% endif %}
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+</div>
+</div><!-- /wash -->
+</div><!-- /full-page bg -->
+{% endblock %}

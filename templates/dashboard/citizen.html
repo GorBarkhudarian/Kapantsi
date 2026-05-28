@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% get_current_language as LANG %}
+
+{% block title %}{% if LANG == 'hy' %}Կառավարման Վահանակ — Կապանցի{% elif LANG == 'fr' %}Tableau de bord — Kapantsi{% else %}Dashboard — Kapantsi{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Dashboard-specific additions ── */
+  .stat-tile {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 1.125rem 1rem;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: background 0.15s ease;
+  }
+  .stat-tile:hover { background: rgba(255,255,255,0.11); }
+  .stat-num {
+    font-size: 1.875rem;
+    font-weight: 900;
+    color: #FFFFFF;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .stat-lbl {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(165,180,252,0.8);
+    margin-top: 5px;
+  }
+
+  .issue-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid #F1F5F9;
+    text-decoration: none;
+    transition: background 0.12s ease;
+  }
+  .issue-row:last-child { border-bottom: none; }
+  .issue-row:hover { background: #F8FAFC; }
+
+  .cat-icon {
+    width: 2.25rem; height: 2.25rem;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .notif-item {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.12s ease;
+  }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item.unread { background: #F5F7FF; }
+  .notif-item:hover { background: #F8FAFC; }
+
+  .quick-link {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #334155;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .quick-link:hover { background: #EEF2FF; color: #4338CA; }
+  .quick-link:hover .ql-icon { color: #4F46E5; }
+  .ql-icon { color: #94A3B8; transition: color 0.12s ease; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- ══════════════════════════════════════
+       WELCOME HERO CARD
+  ══════════════════════════════════════ -->
+  <div class="rounded-2xl mb-8 overflow-hidden relative"
+       style="background:linear-gradient(135deg,#1E1B4B 0%,#2D2A6E 35%,#4338CA 75%,#6366F1 100%);
+              box-shadow:0 20px 60px rgba(67,56,202,0.32),0 4px 12px rgba(15,13,46,0.20);">
+
+    <!-- Texture overlays -->
+    <div class="absolute inset-0 pointer-events-none"
+         style="background:radial-gradient(ellipse 80% 60% at 110% -10%,rgba(255,255,255,0.06),transparent);"></div>
+    <div class="absolute inset-0 pointer-events-none opacity-[0.035]"
+         style="background-image:radial-gradient(circle,#fff 1px,transparent 1px);background-size:20px 20px;"></div>
+
+    <!-- Top section -->
+    <div class="relative z-10 px-6 sm:px-8 pt-7 pb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+
+        <!-- Avatar -->
+        <div class="relative flex-shrink-0">
+          <div class="flex items-center justify-center text-white font-black text-2xl rounded-2xl"
+               style="width:4.25rem;height:4.25rem;
+                      background:linear-gradient(135deg,#F97316,#FB923C);
+                      box-shadow:0 6px 18px rgba(249,115,22,0.45),0 0 0 2px rgba(255,255,255,0.15);">
+            {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+          </div>
+          {% if user.verified %}
+          <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
+               style="background:#22C55E;border:2px solid #2D2A6E;box-shadow:0 1px 4px rgba(34,197,94,0.5);">
+            <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Name / email / badges -->
+        <div class="flex-1 min-w-0">
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-white">
+            {{ user.get_full_name|default:user.username }}
+          </h1>
+          <p class="mt-1 text-sm flex items-center gap-1.5" style="color:rgba(165,180,252,0.80);">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            {{ user.email }}
+          </p>
+          <div class="flex flex-wrap gap-2 mt-3">
+            <!-- Role pill -->
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full"
+                  style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#E0E7FF;">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              {% if user.role == 'citizen' %}{% if LANG == 'hy' %}Քաղաքացի{% elif LANG == 'fr' %}Citoyen{% else %}Citizen{% endif %}{% elif user.role == 'admin' %}{% if LANG == 'hy' %}Admin{% elif LANG == 'fr' %}Administrateur{% else %}Admin{% endif %}{% else %}{{ user.role }}{% endif %}
+            </span>
+            <!-- Verified pill -->
+            {% if user.verified %}
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full"
+                  style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.30);color:#86EFAC;">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              {% if LANG == 'hy' %}Դուք նույնականացվել եք{% elif LANG == 'fr' %}Vérifié{% else %}Verified{% endif %}
+            </span>
+            {% else %}
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full"
+                  style="background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.30);color:#FDE68A;">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              {% if LANG == 'hy' %}Դուք չեք նույնականացվել{% elif LANG == 'fr' %}Non vérifié{% else %}Unverified{% endif %}
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="relative z-10 grid grid-cols-3 mx-0 overflow-hidden"
+         style="border-top:1px solid rgba(255,255,255,0.09);">
+      <div class="stat-tile" style="border-right:1px solid rgba(255,255,255,0.09);">
+        <span class="stat-num">{{ my_issues|length }}</span>
+        <span class="stat-lbl">{% if LANG == 'hy' %}Հաղորդումներ{% elif LANG == 'fr' %}Signalés{% else %}Reported{% endif %}</span>
+      </div>
+      <div class="stat-tile" style="border-right:1px solid rgba(255,255,255,0.09);">
+        <span class="stat-num">{{ my_votes|length }}</span>
+        <span class="stat-lbl">{% if LANG == 'hy' %}Ձայներ{% elif LANG == 'fr' %}Votes{% else %}Votes{% endif %}</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-num">{{ unread_count|default:0 }}</span>
+        <span class="stat-lbl">{% if LANG == 'hy' %}Ծանուցումներ{% elif LANG == 'fr' %}Notifications{% else %}Notifications{% endif %}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       CONTENT GRID
+  ══════════════════════════════════════ -->
+  <div class="grid md:grid-cols-3 gap-6">
+
+    <!-- LEFT: My Issues + My Votes -->
+    <div class="md:col-span-2 space-y-6">
+
+      <!-- ── MY ISSUES ── -->
+      <div class="section-panel">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="section-icon" style="background:#EEF2FF;border:1px solid #C7D2FE;">
+              <svg class="w-4 h-4" style="color:#4F46E5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+            </span>
+            {% if LANG == 'hy' %}Իմ հաղորդումները{% elif LANG == 'fr' %}Mes problèmes{% else %}My Issues{% endif %}
+          </h2>
+          {% if my_issues %}
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                style="background:#EEF2FF;color:#4338CA;border:1px solid #C7D2FE;">{{ my_issues|length }}</span>
+          {% endif %}
+        </div>
+
+        {% if my_issues %}
+        <div>
+          {% for issue in my_issues %}
+          <a href="/issues/{{ issue.pk }}/" class="issue-row group"
+            {% if issue.category == 'road' %}style="border-left:3px solid #6366F1;"{% elif issue.category == 'water' %}style="border-left:3px solid #0EA5E9;"{% elif issue.category == 'electricity' %}style="border-left:3px solid #F59E0B;"{% elif issue.category == 'waste' %}style="border-left:3px solid #22C55E;"{% elif issue.category == 'safety' %}style="border-left:3px solid #EF4444;"{% else %}style="border-left:3px solid #94A3B8;"{% endif %}>
+            <div class="cat-icon flex-shrink-0
+              {% if issue.category == 'road' %}bg-[#EEF2FF]{% elif issue.category == 'water' %}bg-[#E0F2FE]{% elif issue.category == 'electricity' %}bg-[#FFFBEB]{% elif issue.category == 'waste' %}bg-[#DCFCE7]{% elif issue.category == 'safety' %}bg-[#FEE2E2]{% else %}bg-[#F1F5F9]{% endif %}">
+              <svg class="w-4.5 h-4.5
+                {% if issue.category == 'road' %}text-[#4F46E5]{% elif issue.category == 'water' %}text-[#0EA5E9]{% elif issue.category == 'electricity' %}text-[#D97706]{% elif issue.category == 'waste' %}text-[#16A34A]{% elif issue.category == 'safety' %}text-[#DC2626]{% else %}text-[#64748B]{% endif %}"
+                style="width:1.0625rem;height:1.0625rem;"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {% if issue.category == 'road' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                {% elif issue.category == 'water' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/>
+                {% elif issue.category == 'electricity' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                {% elif issue.category == 'waste' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                {% elif issue.category == 'safety' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                {% else %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>{% endif %}
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold truncate text-sm group-hover:text-[#4F46E5] transition-colors"
+                  style="color:#0F172A;">
+                {% if LANG == 'hy' %}{{ issue.title_hy }}{% elif LANG == 'fr' %}{{ issue.title_en|default:issue.title_hy }}{% else %}{{ issue.title_en|default:issue.title_hy }}{% endif %}
+              </h3>
+              <p class="text-xs mt-0.5 font-medium" style="color:#64748B;">
+                {{ issue.created_at|date:"d M Y" }}&nbsp;&middot;&nbsp;{{ issue.upvote_count }} votes
+              </p>
+            </div>
+            <span class="status-{{ issue.status }} flex-shrink-0">
+              {% if LANG == 'hy' %}{% if issue.status == 'pending' %}Սպասվում է{% elif issue.status == 'under_review' %}Ուսումնասիրվում է{% elif issue.status == 'in_progress' %}Ընթացքի մեջ է{% elif issue.status == 'completed' %}Ավարտվել է{% elif issue.status == 'rejected' %}Մերժվել է{% else %}{{ issue.status }}{% endif %}{% elif LANG == 'fr' %}{% if issue.status == 'pending' %}En attente{% elif issue.status == 'under_review' %}En cours d'examen{% elif issue.status == 'in_progress' %}En cours{% elif issue.status == 'completed' %}Terminé{% elif issue.status == 'rejected' %}Rejeté{% else %}{{ issue.status }}{% endif %}{% else %}{% if issue.status == 'pending' %}Pending{% elif issue.status == 'under_review' %}Under Review{% elif issue.status == 'in_progress' %}In Progress{% elif issue.status == 'completed' %}Completed{% elif issue.status == 'rejected' %}Rejected{% else %}{{ issue.status }}{% endif %}{% endif %}
+            </span>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="py-14 text-center px-6">
+          <div class="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+               style="background:#EEF2FF;border:1.5px solid #C7D2FE;">
+            <svg class="w-7 h-7" style="color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </div>
+          <p class="font-semibold text-sm mb-1" style="color:#1E293B;">
+            {% if LANG == 'hy' %}Դուք չունեք հաղորդած խնդիրներ{% elif LANG == 'fr' %}Vous n’avez aucun problème signalé.{% else %}No issues reported yet{% endif %}
+          </p>
+          <p class="text-xs mb-5" style="color:#64748B;">
+          </p>
+          <a href="/issues/new/" class="btn-report text-xs px-5 py-2 inline-flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            {% if LANG == 'hy' %}Հաղորդել{% elif LANG == 'fr' %}Signaler un problème{% else %}Report Issue{% endif %}
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- ── MY VOTES ── -->
+      <div class="section-panel">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="section-icon" style="background:#FFF7ED;border:1px solid #FED7AA;">
+              <svg class="w-4 h-4" style="color:#F97316;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+              </svg>
+            </span>
+            {% if LANG == 'hy' %}Իմ ձայները{% elif LANG == 'fr' %}Mes votes{% else %}My Votes{% endif %}
+          </h2>
+          <a href="/issues/" class="text-xs font-semibold transition-colors" style="color:#4F46E5;"
+             onmouseover="this.style.color='#3730A3';" onmouseout="this.style.color='#4F46E5';">
+            {% if LANG == 'hy' %}Տեսնել բոլոր հաղորդումները{% elif LANG == 'fr' %}Parcourir les problèmes{% else %}Browse issues{% endif %} →
+          </a>
+        </div>
+
+        {% if my_votes %}
+        <div>
+          {% for vote in my_votes %}
+          <a href="/issues/{{ vote.issue.pk }}/" class="issue-row group">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                 style="background:#FFF7ED;border:1px solid #FED7AA;">
+              <svg class="w-4 h-4" style="color:#F97316;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+              </svg>
+            </div>
+            <span class="flex-1 truncate text-sm font-semibold group-hover:text-[#4F46E5] transition-colors" style="color:#1E293B;">
+              {% if LANG == 'hy' %}{{ vote.issue.title_hy }}{% elif LANG == 'fr' %}{{ vote.issue.title_en|default:vote.issue.title_hy }}{% else %}{{ vote.issue.title_en|default:vote.issue.title_hy }}{% endif %}
+            </span>
+            <span class="status-{{ vote.issue.status }} flex-shrink-0">
+              {% if LANG == 'hy' %}{% if vote.issue.status == 'pending' %}Սպասվում է{% elif vote.issue.status == 'under_review' %}Ուսումնասիրվում է{% elif vote.issue.status == 'in_progress' %}Ընթացքի մեջ է{% elif vote.issue.status == 'completed' %}Ավարտվել է{% elif vote.issue.status == 'rejected' %}Մերվել է{% else %}{{ vote.issue.status }}{% endif %}{% elif LANG == 'fr' %}{% if vote.issue.status == 'pending' %}En attente{% elif vote.issue.status == 'under_review' %}En cours d'examen{% elif vote.issue.status == 'in_progress' %}En cours{% elif vote.issue.status == 'completed' %}Terminé{% elif vote.issue.status == 'rejected' %}Rejeté{% else %}{{ vote.issue.status }}{% endif %}{% else %}{% if vote.issue.status == 'pending' %}Pending{% elif vote.issue.status == 'under_review' %}Under Review{% elif vote.issue.status == 'in_progress' %}In Progress{% elif vote.issue.status == 'completed' %}Completed{% elif vote.issue.status == 'rejected' %}Rejected{% else %}{{ vote.issue.status }}{% endif %}{% endif %}
+            </span>
+            <span class="text-xs font-medium flex-shrink-0 hidden sm:block" style="color:#94A3B8;">{{ vote.created_at|date:"d M Y" }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="py-8 text-center text-sm px-6" style="color:#64748B;">
+          {% if LANG == 'hy' %}Դուք դեռևս չեք քվեարկել ոչ մի հաղորդման օգտին{% elif LANG == 'fr' %}Vous n’avez pas encore voté sur des signalements{% else %}You haven’t voted on any reports yet{% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDEBAR: Notifications + Quick Links -->
+    <div class="space-y-5">
+
+      <!-- ── NOTIFICATIONS ── -->
+      <div class="section-panel">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="section-icon relative" style="background:#EEF2FF;border:1px solid #C7D2FE;">
+              <svg class="w-4 h-4" style="color:#4F46E5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+              {% if unread_count %}
+              <div class="absolute -top-1 -right-1 w-3 h-3 rounded-full"
+                   style="background:#EF4444;border:2px solid white;"></div>
+              {% endif %}
+            </span>
+            {% if LANG == 'hy' %}Ծանուցումներ{% elif LANG == 'fr' %}Notifications{% else %}Notifications{% endif %}
+          </h2>
+          {% if unread_count %}
+          <form method="post" action="/api/notifications/read/">
+            {% csrf_token %}
+            <button type="submit" class="text-xs font-semibold transition-colors" style="color:#4F46E5;"
+                    onmouseover="this.style.color='#3730A3';" onmouseout="this.style.color='#4F46E5';">
+              {% if LANG == 'hy' %}Նշել բոլորը կարդացված{% elif LANG == 'fr' %}Tout marquer lu{% else %}Mark all read{% endif %}
+            </button>
+          </form>
+          {% endif %}
+        </div>
+
+        <div>
+          {% for notif in notifications %}
+          <div class="notif-item {% if not notif.read %}unread{% endif %}">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5
+              {% if notif.notification_type == 'status_change' %}bg-[#FEE2E2]{% elif notif.notification_type == 'vote' %}bg-[#FFF7ED]{% elif notif.notification_type == 'comment' %}bg-[#EEF2FF]{% else %}bg-[#F1F5F9]{% endif %}"
+              {% if notif.notification_type == 'status_change' %}style="border:1px solid #FECACA;"{% elif notif.notification_type == 'vote' %}style="border:1px solid #FED7AA;"{% elif notif.notification_type == 'comment' %}style="border:1px solid #C7D2FE;"{% else %}style="border:1px solid #E2E8F0;"{% endif %}>
+              <svg class="w-4 h-4
+                {% if notif.notification_type == 'status_change' %}text-[#DC2626]{% elif notif.notification_type == 'vote' %}text-[#F97316]{% elif notif.notification_type == 'comment' %}text-[#4F46E5]{% else %}text-[#64748B]{% endif %}"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {% if notif.notification_type == 'status_change' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                {% elif notif.notification_type == 'vote' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                {% elif notif.notification_type == 'comment' %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                {% else %}<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>{% endif %}
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs leading-relaxed font-medium" style="color:#334155;">
+                {% if LANG == 'hy' %}{{ notif.message_hy|default:notif.message }}{% else %}{{ notif.message|default:notif.message_hy }}{% endif %}
+              </p>
+              {% if notif.issue %}
+              <a href="/issues/{{ notif.issue.pk }}/"
+                 class="text-[11px] font-semibold mt-1 block transition-colors" style="color:#4F46E5;"
+                 onmouseover="this.style.color='#3730A3';" onmouseout="this.style.color='#4F46E5';">
+                {% if LANG == 'hy' %}Տեսնել{% else %}View{% endif %} →
+              </a>
+              {% endif %}
+              <p class="text-[10px] mt-1" style="color:#94A3B8;">{{ notif.created_at|date:"d M Y, H:i" }}</p>
+            </div>
+            {% if not notif.read %}
+            <div class="w-2 h-2 rounded-full flex-shrink-0 mt-2" style="background:#4F46E5;"></div>
+            {% endif %}
+          </div>
+          {% empty %}
+          <div class="py-10 text-center px-4">
+            <div class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center"
+                 style="background:#EEF2FF;border:1.5px solid #C7D2FE;">
+              <svg class="w-6 h-6" style="color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+            </div>
+            <p class="text-xs font-medium" style="color:#64748B;">
+              {% if LANG == 'hy' %}Դեռևս չկան ծանուցումներ{% elif LANG == 'fr' %}Pas de notifications{% else %}No notifications{% endif %}
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ── QUICK LINKS ── -->
+      <div class="section-panel">
+        <div class="section-header">
+          <h2 class="section-title" style="font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;">
+            {% if LANG == 'hy' %}Արագ հղումներ{% elif LANG == 'fr' %}Liens rapides{% else %}Quick Links{% endif %}
+          </h2>
+        </div>
+        <div class="p-2.5 space-y-0.5">
+          <a href="/issues/" class="quick-link">
+            <svg class="w-4 h-4 flex-shrink-0 ql-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+            {% if LANG == 'hy' %}Տեսնել բոլոր հաղորդումները{% elif LANG == 'fr' %}Tous les problèmes{% else %}Browse all issues{% endif %}
+          </a>
+          <a href="/issues/new/" class="quick-link">
+            <svg class="w-4 h-4 flex-shrink-0 ql-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            {% if LANG == 'hy' %}Հաղորդել նոր խնդիր{% elif LANG == 'fr' %}Signaler un nouveau problème{% else %}Report new issue{% endif %}
+          </a>
+          <a href="/map/" class="quick-link">
+            <svg class="w-4 h-4 flex-shrink-0 ql-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+            </svg>
+            {% if LANG == 'hy' %}Տեսնել քարտեզը{% elif LANG == 'fr' %}Voir la carte{% else %}View map{% endif %}
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

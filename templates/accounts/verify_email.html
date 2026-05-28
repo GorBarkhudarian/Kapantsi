@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% get_current_language as LANG %}
+
+{% block title %}{% if LANG == 'hy' %}Հաստատեք Ձեր էլ. հասցեն — Կապանցի{% elif LANG == 'fr' %}Vérifiez votre e-mail — Kapantsi{% else %}Verify your email — Kapantsi{% endif %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4" style="background:linear-gradient(135deg,#0F0D2E 0%,#1E1B4B 50%,#312E81 100%)">
+  <div class="bg-white rounded-2xl p-8 w-full max-w-md" style="box-shadow:0 24px 64px rgba(0,0,0,0.30)">
+
+    <!-- Icon -->
+    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6" style="background:linear-gradient(135deg,#6366F1,#4F46E5)">
+      <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+      </svg>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-2xl font-extrabold text-[#0F0D2E] text-center mb-2">
+      {% if LANG == 'hy' %}Հաստատեք Ձեր էլ. հասցեն{% elif LANG == 'fr' %}Vérifiez votre e-mail{% else %}Verify your email{% endif %}
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-sm text-[#64748B] text-center mb-6">
+      {% if LANG == 'hy' %}
+        <strong>{{ email }}</strong> Ձեր էլեկտրոնային հասցեին ուղարկվել է 6-անիշ ծածկագիր։ Ծածկագիրն անվավեր կհամարվի 10 րոպե անց։
+      {% elif LANG == 'fr' %}
+        Un code à 6 chiffres a été envoyé à <strong>{{ email }}</strong>. Le code expire dans 10 minutes.
+      {% else %}
+        A 6-digit code was sent to <strong>{{ email }}</strong>. It expires in 10 minutes.
+      {% endif %}
+    </p>
+
+    <!-- Error -->
+    {% if error %}
+    <div class="rounded-xl px-4 py-3 text-sm mb-5 flex items-center gap-2" style="background:#FEE2E2;color:#7F1D1D;border:1px solid #FECACA">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Form -->
+    <form method="post">
+      {% csrf_token %}
+      <input
+        type="text"
+        name="code"
+        maxlength="6"
+        autofocus
+        placeholder="_ _ _ _ _ _"
+        class="w-full text-center text-3xl font-bold tracking-[0.5em] px-4 py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4F46E5] mb-5"
+        style="border-color:#E2E8F0;letter-spacing:0.4em"
+        oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6)"
+      >
+      <button type="submit" class="w-full btn-accent py-3.5 text-base font-bold rounded-xl">
+        {% if LANG == 'hy' %}Հաստատել{% elif LANG == 'fr' %}Confirmer{% else %}Confirm{% endif %}
+      </button>
+    </form>
+
+    <!-- Back link -->
+    <p class="text-center text-xs text-[#94A3B8] mt-5">
+      {% if LANG == 'hy' %}Սխալ հասցե՞։{% elif LANG == 'fr' %}Mauvais e-mail ?{% else %}Wrong email?{% endif %}
+      <a href="/register/" class="text-[#4F46E5] font-semibold hover:underline">
+        {% if LANG == 'hy' %}Վերադառնալ{% elif LANG == 'fr' %}Retour{% else %}Go back{% endif %}
+      </a>
+    </p>
+
+  </div>
+</div>
+{% endblock %}

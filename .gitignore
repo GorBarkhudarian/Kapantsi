@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+
+# Django
+*.sqlite3
+db.sqlite3
+local_settings.py
+media/
+staticfiles/
+*.log
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Migrations (keep structure, ignore data)
+# Uncomment below if you want to exclude migrations:
+# */migrations/*.py
+# !*/migrations/__init__.py

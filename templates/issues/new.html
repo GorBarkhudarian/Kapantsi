@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% get_current_language as LANG %}
+
+{% block title %}{% if LANG == 'hy' %}Հաղորդի՛ր առաջցած խնդիրը — Կապանցի{% elif LANG == 'fr' %}Signaler un problème — Kapantsi{% else %}Report Issue — Kapantsi{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+{% endblock %}
+
+{% block content %}
+<!-- full-page image background -->
+<div style="background-image:url('/static/images/hero-bg.jpg');background-size:cover;background-position:center;background-attachment:fixed">
+
+<!-- ── HERO BANNER ───────────────────────────────────────────── -->
+<section class="relative overflow-hidden" style="background:linear-gradient(135deg,rgba(26,23,80,0.90) 0%,rgba(37,34,96,0.85) 50%,rgba(55,48,163,0.85) 100%)">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-24 -right-24 w-80 h-80 rounded-full opacity-10" style="background:radial-gradient(circle,#818CF8,transparent)"></div>
+    <div class="absolute bottom-0 -left-16 w-64 h-64 rounded-full opacity-10" style="background:radial-gradient(circle,#FBBF24,transparent)"></div>
+    <svg class="absolute bottom-0 left-0 right-0 w-full opacity-5" viewBox="0 0 1440 120" preserveAspectRatio="none" fill="white">
+      <polygon points="0,120 240,40 480,80 720,20 960,60 1200,10 1440,50 1440,120"/>
+    </svg>
+  </div>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-16 md:py-20 relative z-10 text-center">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium mb-6"
+      style="background:rgba(255,255,255,0.08);color:#A5B4FC;border:1px solid rgba(255,255,255,0.1)">
+      <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+      {% if LANG == 'hy' %}Կապան, Սյունիք, Հայաստան
+      {% elif LANG == 'fr' %}Kapan, Syunik, Arménie
+      {% else %}Kapan, Syunik, Armenia{% endif %}
+    </div>
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4" style="letter-spacing:-0.02em">
+      {% if LANG == 'hy' %}Հաղորդել <span style="color:#F97316">խնդիր</span>{% elif LANG == 'fr' %}Signaler un <span style="color:#F97316">Problème</span>{% else %}Report an <span style="color:#F97316">Issue</span>{% endif %}
+    </h1>
+    <p class="text-lg text-white mx-auto max-w-2xl" style="opacity:0.85">
+      {% if LANG == 'hy' %}Ձեր ձայնը կարևոր է։ Հաղորդեք քաղաքի խնդիրների մասին
+      {% elif LANG == 'fr' %}Votre voix compte․ Signalez les problèmes de la ville
+      {% else %}Your voice matters. Report city issues.{% endif %}
+    </p>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0">
+    <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" style="display:block">
+      <path d="M0 40L0 20Q360 0 720 12Q1080 24 1440 8L1440 40Z" fill="#F5F7FF"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ── MAIN CONTENT ──────────────────────────────────────────── -->
+<div style="background:rgba(255,255,255,0.55)">
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-1.5 text-xs text-[#000000] mb-6">
+    <a href="/" class="hover:text-[#4F46E5] transition-colors font-medium">{% if LANG == 'hy' %}Գլխավոր{% elif LANG == 'fr' %}Accueil{% else %}Home{% endif %}</a>
+    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <a href="/issues/" class="hover:text-[#4F46E5] transition-colors font-medium">{% if LANG == 'hy' %}Խնդիրներ{% elif LANG == 'fr' %}Problèmes{% else %}Issues{% endif %}</a>
+    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    <span class="text-[#000000] font-semibold">{% if LANG == 'hy' %}Նոր{% elif LANG == 'fr' %}Nouveau{% else %}New{% endif %}</span>
+  </nav>
+
+  <form method="post" enctype="multipart/form-data" class="space-y-5" id="report-form">
+    {% csrf_token %}
+
+    <!-- Section 1: Title -->
+    <div class="rounded-2xl" style="overflow:hidden;border:2px solid #C7D2FE;box-shadow:0 4px 18px rgba(79,70,229,0.10)">
+      <div class="flex items-center gap-4 px-7 py-4" style="background:linear-gradient(135deg,#4338CA 0%,#6366F1 100%);border-radius:0.875rem 0.875rem 0 0">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.30)">1</div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-base font-extrabold text-white leading-tight">{% if LANG == 'hy' %}Վերնագիր{% elif LANG == 'fr' %}Titre{% else %}Title{% endif %}</h2>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color:rgba(255,255,255,0.30)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+      </div>
+      <div class="bg-white px-7 py-5">
+        {{ form.title_hy }}
+        {% if form.title_hy.errors %}<p class="text-red-500 text-xs mt-1">{{ form.title_hy.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <!-- Section 2: Description -->
+    <div class="rounded-2xl" style="overflow:hidden;border:2px solid #C7D2FE;box-shadow:0 4px 18px rgba(79,70,229,0.10)">
+      <div class="flex items-center gap-4 px-7 py-4" style="background:linear-gradient(135deg,#4338CA 0%,#6366F1 100%);border-radius:0.875rem 0.875rem 0 0">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.30)">2</div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-base font-extrabold text-white leading-tight">{% if LANG == 'hy' %}Նկարագրություն{% elif LANG == 'fr' %}Description{% else %}Description{% endif %}</h2>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color:rgba(255,255,255,0.30)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 10h16M4 14h10"/></svg>
+      </div>
+      <div class="bg-white px-7 py-5">
+        {{ form.description_hy }}
+        {% if form.description_hy.errors %}<p class="text-red-500 text-xs mt-1">{{ form.description_hy.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <!-- Section 3: Classification -->
+    <div class="rounded-2xl" style="overflow:hidden;border:2px solid #C7D2FE;box-shadow:0 8px 32px rgba(79,70,229,0.13)">
+
+      <!-- Section header bar -->
+      <div class="flex items-center gap-4 px-7 py-5" style="background:linear-gradient(135deg,#4338CA 0%,#6366F1 100%);border-radius:0.875rem 0.875rem 0 0">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white text-base font-extrabold flex-shrink-0" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.30)">3</div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg font-extrabold text-white leading-tight">{% if LANG == 'hy' %}Դասակարգում{% elif LANG == 'fr' %}Classification{% else %}Classification{% endif %}</h2>
+        </div>
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6" style="color:rgba(255,255,255,0.35)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="bg-white px-7 py-6">
+
+        <!-- Category label -->
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-bold text-[#1E293B] flex items-center gap-2">
+            <span class="w-5 h-5 rounded-md flex items-center justify-center" style="background:#EEF2FF">
+              <svg class="w-3 h-3" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+            </span>
+            {% if LANG == 'hy' %}Տեսակը{% elif LANG == 'fr' %}Catégorie{% else %}Category{% endif %}
+            <span class="text-red-500 text-base leading-none">*</span>
+          </p>
+        </div>
+
+        <!-- Category grid — 2 rows × 3 on mobile, 1 row × 6 on sm+ -->
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+          {% for val, label in form.category.field.choices %}
+          {% if val %}
+          <button type="button" onclick="selectCategory('{{ val }}')"
+            class="cat-btn group relative flex flex-col items-center gap-2.5 pt-5 pb-4 px-2 rounded-2xl border-2 transition-all duration-200 text-center focus:outline-none"
+            data-cat="{{ val }}"
+            style="border-color:#E2E8F0;background:#F8FAFC;min-height:100px;">
+
+            <!-- Selection checkmark (hidden by default) -->
+            <span class="cat-check absolute top-2 right-2 w-5 h-5 rounded-full items-center justify-center hidden" style="background:#4F46E5">
+              <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+            </span>
+
+            {% if val == 'road' %}
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105" style="background:#EEF2FF">
+              <svg class="w-7 h-7" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+              </svg>
+            </div>
+            <span class="cat-label text-[11px] font-bold leading-snug w-full text-center" style="color:#334155">{% if LANG == 'hy' %}Ճանապարհ{% elif LANG == 'fr' %}Route{% else %}Road{% endif %}</span>
+
+            {% elif val == 'water' %}
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105" style="background:#DBEAFE">
+              <svg class="w-7 h-7" style="color:#1D4ED8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/>
+              </svg>
+            </div>
+            <span class="cat-label text-[11px] font-bold leading-snug w-full text-center" style="color:#334155">{% if LANG == 'hy' %}Ջուր{% elif LANG == 'fr' %}Eau{% else %}Water{% endif %}</span>
+
+            {% elif val == 'electricity' %}
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105" style="background:#FEF9C3">
+              <svg class="w-7 h-7" style="color:#A16207" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <span class="cat-label text-[11px] font-bold leading-snug w-full text-center" style="color:#334155">{% if LANG == 'hy' %}Էլ․էներգիա{% elif LANG == 'fr' %}Électricité{% else %}Electricity{% endif %}</span>
+
+            {% elif val == 'waste' %}
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105" style="background:#DCFCE7">
+              <svg class="w-7 h-7" style="color:#15803D" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </div>
+            <span class="cat-label text-[11px] font-bold leading-snug w-full text-center" style="color:#334155">{% if LANG == 'hy' %}Աղբ{% elif LANG == 'fr' %}Déchets{% else %}Waste{% endif %}</span>
+
+            {% elif val == 'safety' %}
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105" style="background:#FEE2E2">
+              <svg class="w-7 h-7" style="color:#B91C1C" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <span class="cat-label text-[11px] font-bold leading-snug w-full text-center" style="color:#334155">{% if LANG == 'hy' %}Անվտանգ.{% elif LANG == 'fr' %}Sécurité{% else %}Safety{% endif %}</span>
+
+            {% else %}
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105" style="background:#F1F5F9">
+              <svg class="w-7 h-7" style="color:#64748B" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              </svg>
+            </div>
+            <span class="cat-label text-[11px] font-bold leading-snug w-full text-center" style="color:#334155">{% if LANG == 'hy' %}Այլ{% elif LANG == 'fr' %}Autre{% else %}Other{% endif %}</span>
+            {% endif %}
+
+          </button>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+        <!-- Hidden select to submit -->
+        <div class="hidden">{{ form.category }}</div>
+        {% if form.category.errors %}<p class="text-red-500 text-xs mt-1">{{ form.category.errors.0 }}</p>{% endif %}
+
+        <!-- Divider -->
+        <div class="h-px mb-6" style="background:linear-gradient(90deg,#6366F1,#C7D2FE,transparent)"></div>
+
+        <!-- Area / Village -->
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-bold text-[#1E293B] mb-2 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0" style="background:#EEF2FF">
+                <svg class="w-3 h-3" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </span>
+              {% if LANG == 'hy' %}Շրջանը{% elif LANG == 'fr' %}Zone{% else %}Area{% endif %}
+              <span class="text-red-500 text-base leading-none">*</span>
+            </label>
+            {{ form.area }}
+            {% if form.area.errors %}<p class="text-red-500 text-xs mt-1">{{ form.area.errors.0 }}</p>{% endif %}
+          </div>
+          <div id="village-field" class="hidden">
+            <label class="block text-sm font-bold text-[#1E293B] mb-2 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0" style="background:#EEF2FF">
+                <svg class="w-3 h-3" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              </span>
+              {% if LANG == 'hy' %}Գյուղ{% elif LANG == 'fr' %}Nom du village{% else %}Village Name{% endif %}
+            </label>
+            {{ form.village_name }}
+          </div>
+        </div>
+
+      </div><!-- /body -->
+    </div>
+
+    <!-- Section 4: Location -->
+    <div class="rounded-2xl" style="overflow:hidden;border:2px solid #C7D2FE;box-shadow:0 4px 18px rgba(79,70,229,0.10)">
+      <div class="flex items-center gap-4 px-7 py-4" style="background:linear-gradient(135deg,#4338CA 0%,#6366F1 100%);border-radius:0.875rem 0.875rem 0 0">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.30)">4</div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-base font-extrabold text-white leading-tight">{% if LANG == 'hy' %}Տեղակայություն{% elif LANG == 'fr' %}Localisation{% else %}Location{% endif %}</h2>
+          <p class="text-[11px] mt-0.5" style="color:rgba(255,255,255,0.60)">{% if LANG == 'hy' %}Նշեք վայրը քարտեզի վրա{% elif LANG == 'fr' %}Cliquez sur la carte pour épingler l'emplacement{% else %}Click on the map to pin the exact location{% endif %}</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color:rgba(255,255,255,0.30)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <div class="bg-white px-7 py-6">
+        <div id="new-issue-map" class="h-64 rounded-xl overflow-hidden border border-[#E2E8F0] mb-5" style="position:relative;z-index:0"></div>
+        {{ form.latitude }}
+        {{ form.longitude }}
+        <div class="mb-4">
+          <label class="block text-sm font-bold text-[#1E293B] mb-2 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0" style="background:#EEF2FF">
+              <svg class="w-3 h-3" style="color:#4F46E5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </span>
+            {% if LANG == 'hy' %}Հասցե{% elif LANG == 'fr' %}Adresse{% else %}Address{% endif %}
+          </label>
+          {{ form.location_address }}
+        </div>
+        <div id="coords-display" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#EEF2FF;color:#4F46E5;border:1px solid #C7D2FE">
+          <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+          39.20670, 46.40580 ({% if LANG == 'hy' %}Kapan{% elif LANG == 'fr' %}Centre de Kapan{% else %}Kapan center{% endif %})
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Photo -->
+    <div class="rounded-2xl" style="overflow:hidden;border:2px solid #C7D2FE;box-shadow:0 4px 18px rgba(79,70,229,0.10)">
+      <div class="flex items-center gap-4 px-7 py-4" style="background:linear-gradient(135deg,#4338CA 0%,#6366F1 100%);border-radius:0.875rem 0.875rem 0 0">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.30)">5</div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-base font-extrabold text-white leading-tight">{% if LANG == 'hy' %}Լուսանկար{% elif LANG == 'fr' %}Photo{% else %}Photo{% endif %}</h2>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color:rgba(255,255,255,0.30)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </div>
+      <div class="bg-white px-7 py-6">
+        <!-- Hidden file inputs -->
+        <div class="hidden">{{ form.image }}</div>
+        <input type="file" id="extra-images-input" name="extra_images" accept="image/*" multiple class="hidden">
+
+        <!-- Drop zone (hidden once photos selected) -->
+        <label for="extra-images-input" id="drop-zone"
+          class="block border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200"
+          style="border-color:#E2E8F0;background:#F8FAFC">
+          <div class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style="background:#EEF2FF">
+            <svg class="w-6 h-6 text-[#818CF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <p class="font-semibold text-[#64748B] mb-1 text-sm">
+            {% if LANG == 'hy' %}Ներբեռնել լուսանկարները{% elif LANG == 'fr' %}Télécharger des photos{% else %}Upload photos{% endif %}
+          </p>
+          <p class="text-xs text-[#94A3B8]">{% if LANG == 'hy' %}կամ տեղադրեք այստեղ{% elif LANG == 'fr' %}ou glisser-déposer ici{% else %}or drag and drop here{% endif %}</p>
+          <p class="text-xs text-[#94A3B8] mt-2">JPG, PNG, WebP — max 5 MB {% if LANG == 'hy' %}յուրաքանչյուրը{% elif LANG == 'fr' %}chacune{% else %}each{% endif %}</p>
+        </label>
+
+        <!-- Preview grid -->
+        <div id="image-preview-grid" class="hidden mt-4">
+          <div id="preview-grid" class="grid grid-cols-3 gap-3 mb-3"></div>
+          <button type="button" id="add-more-btn"
+            class="text-xs font-semibold text-[#4F46E5] hover:underline flex items-center gap-1 mt-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            {% if LANG == 'hy' %}Ավելացնել{% elif LANG == 'fr' %}Ajouter d'autres{% else %}Add more{% endif %}
+          </button>
+        </div>
+      </div>
+      </div>
+
+    <!-- Non-field errors -->
+    {% if form.non_field_errors %}
+    <div class="rounded-xl p-4 text-sm flex items-start gap-2" style="background:#FEE2E2;color:#7F1D1D;border:1px solid #FECACA">
+      <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      {{ form.non_field_errors.0 }}
+    </div>
+    {% endif %}
+
+    <!-- Submit -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button type="submit" id="submit-btn"
+        class="flex-1 btn-report py-3.5 text-base flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        {% if LANG == 'hy' %}Հաղորդել{% elif LANG == 'fr' %}Envoyer le signalement{% else %}Submit Report{% endif %}
+      </button>
+      <a href="/issues/" class="btn-ghost py-3.5 text-base text-center sm:w-40">
+        {% if LANG == 'hy' %}Չեղարկել{% elif LANG == 'fr' %}Annuler{% else %}Cancel{% endif %}
+      </a>
+    </div>
+  </form>
+</div>
+</div><!-- /wash -->
+</div><!-- /full-page bg-image -->
+{% endblock %}
+
+{% block extra_js %}
+<script>window.KAPANTSI_LANG = "{{ LANG }}";</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/new-issue.js' %}"></script>
+{% if False %}{# ── original inline JS removed — lives in static/js/new-issue.js ── #}
+<script>
+const LANG = "{{ LANG }}";
+(function() {
+  const DEFAULT_LAT = 39.2067, DEFAULT_LNG = 46.4058;
+  const map = L.map('new-issue-map', { zoomSnap: 1 }).setView([DEFAULT_LAT, DEFAULT_LNG], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  setTimeout(function() { map.invalidateSize(); }, 0);
+
+  /*
+   * Pin icon: a circle body (24×24) with a centred downward triangle tip (0,0,12,8 → 0,8).
+   * The SVG's own coordinate system puts the pin tip at the bottom-centre of the 24×32 viewBox.
+   * iconAnchor: [12, 32] pins the bottom-centre of the SVG to the coordinate — no CSS
+   * transform rotation involved, so Leaflet's anchor calculation is pixel-perfect.
+   */
+  const markerIcon = L.divIcon({
+    html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 24 32" style="display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.30))">
+             <circle cx="12" cy="12" r="11" fill="#F97316" stroke="#ffffff" stroke-width="2.5"/>
+             <polygon points="6,18 18,18 12,32" fill="#F97316"/>
+           </svg>`,
+    iconSize:   [24, 32],
+    iconAnchor: [12, 32],   /* exact bottom-centre = coordinate point */
+    popupAnchor:[0, -34],
+    className: ''
+  });
+
+  let marker = L.marker([DEFAULT_LAT, DEFAULT_LNG], { draggable: true, icon: markerIcon }).addTo(map);
+
+  function updateCoords(lat, lng) {
+    const latEl = document.getElementById('id_latitude');
+    const lngEl = document.getElementById('id_longitude');
+    if (latEl) latEl.value = lat.toFixed(6);
+    if (lngEl) lngEl.value = lng.toFixed(6);
+    document.getElementById('coords-display').innerHTML =
+      '<svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>' +
+      lat.toFixed(5) + ', ' + lng.toFixed(5);
+  }
+  updateCoords(DEFAULT_LAT, DEFAULT_LNG);
+
+  map.on('click', function(e) {
+    marker.setLatLng(e.latlng);
+    updateCoords(e.latlng.lat, e.latlng.lng);
+  });
+  marker.on('dragend', function() {
+    const pos = marker.getLatLng();
+    updateCoords(pos.lat, pos.lng);
+  });
+
+  // Village field toggle
+  const areaSelect = document.querySelector('[name="area"]');
+  if (areaSelect) {
+    areaSelect.addEventListener('change', function() {
+      const vf = document.getElementById('village-field');
+      if (vf) vf.classList.toggle('hidden', this.value !== 'village');
+    });
+  }
+
+  // Category quick-select
+  window.selectCategory = function(val) {
+    const sel = document.querySelector('[name="category"]');
+    if (sel) sel.value = val;
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      const isActive = btn.dataset.cat === val;
+      btn.style.borderColor = isActive ? '#4F46E5' : '#E2E8F0';
+      btn.style.background  = isActive ? 'linear-gradient(145deg,#EEF2FF 0%,#E0E7FF 100%)' : '#F8FAFC';
+      btn.style.boxShadow   = isActive ? '0 6px 20px rgba(79,70,229,0.28)' : 'none';
+      btn.style.transform   = isActive ? 'translateY(-3px) scale(1.04)' : 'translateY(0) scale(1)';
+      // Checkmark badge
+      const check = btn.querySelector('.cat-check');
+      if (check) check.style.display = isActive ? 'flex' : 'none';
+      // Label
+      const label = btn.querySelector('.cat-label');
+      if (label) {
+        label.style.color      = isActive ? '#3730A3' : '#334155';
+        label.style.fontWeight = isActive ? '800'     : '700';
+      }
+    });
+  };
+
+  // Drop zone hover
+  const dz = document.getElementById('drop-zone');
+  if (dz) {
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = '#4F46E5'; dz.style.background = '#EEF2FF'; });
+    dz.addEventListener('dragleave', () => { dz.style.borderColor = '#E2E8F0'; dz.style.background = '#F8FAFC'; });
+    dz.addEventListener('drop', () => { dz.style.borderColor = '#E2E8F0'; dz.style.background = '#F8FAFC'; });
+  }
+
+  // Image preview
+  const imgInput = document.querySelector('[name="image"]');
+  if (imgInput) {
+    imgInput.classList.add('hidden');
+    imgInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          document.getElementById('preview-img').src = ev.target.result;
+          document.getElementById('preview-name').textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+          document.getElementById('image-preview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Form submit loading state
+  const form = document.getElementById('report-form');
+  const submitBtn = document.getElementById('submit-btn');
+  if (form && submitBtn) {
+    form.addEventListener('submit', function() {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>' + (LANG === 'hy' ? 'Ուղարկվում է...' : LANG === 'fr' ? 'Envoi...' : 'Sending...');
+    });
+  }
+})();
+</script>
+{% endif %}
+{% endblock %}

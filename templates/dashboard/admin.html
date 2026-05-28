@@ -1,0 +1,380 @@
+{% extends 'base.html' %}
+{% load i18n static dashboard_tags %}
+{% get_current_language as LANG %}
+
+{% block title %}{% if LANG == 'hy' %}Ղեկավարման Վահանակ— Կապանցի{% elif LANG == 'fr' %}Tableau de bord admin — Kapantsi{% else %}Admin Dashboard — Kapantsi{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- Page header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-[#0F0D2E] flex items-center gap-3">
+        {% if LANG == 'hy' %}ԿԱՌԱՎԱՐՄԱՆ ԿԵՆՏՐՈՆ{% elif LANG == 'fr' %}Tableau de bord admin{% else %}Admin Dashboard{% endif %}
+      </h1>
+      <p class="text-[#94A3B8] text-sm mt-1">{% if LANG == 'hy' %}Կապանի համայնքապետարան{% elif LANG == 'fr' %}Municipalité de Kapan{% else %}Kapan Municipality{% endif %}</p>
+    </div>
+    <div class="flex gap-2.5">
+      <a href="/admin/" class="btn-primary text-sm px-4 py-2.5 flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+         <p class="text-sm">{% if LANG == 'hy' %}Ղեկավարել{% elif LANG == 'fr' %}Gérer{% else %}Manage{% endif %}</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats grid (8 cards) -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3 mb-8">
+
+    <!-- Total -->
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5 flex flex-col gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#F1F5F9">
+        <svg class="w-5 h-5" style="color:#475569" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      </div>
+      <div>
+        <div class="text-3xl font-extrabold text-[#0F172A] leading-none">{{ stats.total|default:0 }}</div>
+        <div class="text-[11px] text-[#475569] mt-1.5 font-bold uppercase tracking-wider whitespace-nowrap">{% if LANG == 'hy' %}Ընդհանուր{% elif LANG == 'fr' %}Total{% else %}Total{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- Pending -->
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5 flex flex-col gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #F59E0B">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#FFFBEB">
+        <svg class="w-5 h-5" style="color:#D97706" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div>
+        <div class="text-3xl font-extrabold leading-none" style="color:#92400E">{{ stats.pending|default:0 }}</div>
+        <div class="text-[11px] mt-1.5 font-bold uppercase tracking-wider whitespace-nowrap" style="color:#B45309">{% if LANG == 'hy' %}Սպասվում է{% elif LANG == 'fr' %}En attente{% else %}Pending{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- Under Review -->
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5 flex flex-col gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #3B82F6">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#EFF6FF">
+        <svg class="w-5 h-5" style="color:#2563EB" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+      <div>
+        <div class="text-3xl font-extrabold leading-none" style="color:#1E40AF">{{ stats.under_review|default:0 }}</div>
+        <div class="text-[11px] mt-1.5 font-bold whitespace-nowrap {% if LANG != 'hy' %}uppercase tracking-wider{% endif %}" style="color:#1D4ED8">{% if LANG == 'hy' %}Ուսումնասիրվում է{% elif LANG == 'fr' %}En révision{% else %}Under Review{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- In Progress -->
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5 flex flex-col gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #8B5CF6">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#F5F3FF">
+        <svg class="w-5 h-5" style="color:#7C3AED" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <div>
+        <div class="text-3xl font-extrabold leading-none" style="color:#5B21B6">{{ stats.in_progress|default:0 }}</div>
+        <div class="text-[11px] mt-1.5 font-bold uppercase tracking-wider whitespace-nowrap" style="color:#6D28D9">{% if LANG == 'hy' %}Ընթացքի մեջ է{% elif LANG == 'fr' %}En cours{% else %}In Progress{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- Completed -->
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5 flex flex-col gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #22C55E">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#F0FDF4">
+        <svg class="w-5 h-5" style="color:#16A34A" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div>
+        <div class="text-3xl font-extrabold leading-none" style="color:#14532D">{{ stats.completed|default:0 }}</div>
+        <div class="text-[11px] mt-1.5 font-bold uppercase tracking-wider whitespace-nowrap" style="color:#15803D">{% if LANG == 'hy' %}Ավարտվել է{% elif LANG == 'fr' %}Résolus{% else %}Completed{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- Rejected -->
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5 flex flex-col gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #EF4444">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#FEF2F2">
+        <svg class="w-5 h-5" style="color:#DC2626" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div>
+        <div class="text-3xl font-extrabold leading-none" style="color:#7F1D1D">{{ stats.rejected|default:0 }}</div>
+        <div class="text-[11px] mt-1.5 font-bold uppercase tracking-wider whitespace-nowrap" style="color:#B91C1C">{% if LANG == 'hy' %}Մերժվել է{% elif LANG == 'fr' %}Rejeté{% else %}Rejected{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- Users -->
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5 flex flex-col gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #0EA5E9">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#F0F9FF">
+        <svg class="w-5 h-5" style="color:#0284C7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <div>
+        <div class="text-3xl font-extrabold leading-none" style="color:#0C4A6E">{{ stats.total_users|default:0 }}</div>
+        <div class="text-[11px] mt-1.5 font-bold uppercase tracking-wider whitespace-nowrap" style="color:#0369A1">{% if LANG == 'hy' %}Օգտատերեր{% elif LANG == 'fr' %}Utilisateurs{% else %}Users{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- Votes -->
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-5 flex flex-col gap-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #F97316">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#FFF7ED">
+        <svg class="w-5 h-5" style="color:#EA580C" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+      </div>
+      <div>
+        <div class="text-3xl font-extrabold leading-none" style="color:#7C2D12">{{ stats.total_votes|default:0 }}</div>
+        <div class="text-[11px] mt-1.5 font-bold uppercase tracking-wider whitespace-nowrap" style="color:#C2410C">{% if LANG == 'hy' %}Ձայներ{% elif LANG == 'fr' %}Votes{% else %}Votes{% endif %}</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Issues table -->
+  <div class="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden" style="box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+    <div class="px-6 py-5 border-b border-[#F1F5F9] grid grid-cols-3 items-center gap-3">
+      <!-- left spacer (matches search width) -->
+      <div class="hidden sm:block"></div>
+
+      <!-- title — truly centered -->
+      <div class="flex flex-col items-center gap-1 col-span-3 sm:col-span-1">
+        <h3 class="text-xl font-extrabold tracking-tight text-[#0F0D2E] text-center leading-tight">
+          {% if LANG == 'hy' %}Բոլոր խնդիրները{% elif LANG == 'fr' %}Tous les problèmes{% else %}All Issues{% endif %}
+        </h3>
+        <span class="px-3 py-0.5 rounded-full text-xs font-semibold" style="background:#EEF2FF;color:#4F46E5">
+          {{ issues|length }} {% if LANG == 'hy' %}Հողորդում{% elif LANG == 'fr' %}Signalements{% else %}Reports{% endif %}
+        </span>
+      </div>
+
+      <!-- search — right -->
+      <div class="flex justify-end col-span-3 sm:col-span-1">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#94A3B8] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="table-search"
+            placeholder="{% if LANG == 'hy' %}Որոնել...{% elif LANG == 'fr' %}Rechercher...{% else %}Search issues...{% endif %}"
+            class="form-input pl-9 text-sm w-48">
+        </div>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm" id="issues-table">
+        <thead style="background:#F1F5F9;border-bottom:2px solid #E2E8F0">
+          <tr>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">#</th>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">{% if LANG == 'hy' %}Վերնագիր{% elif LANG == 'fr' %}Titre{% else %}Title{% endif %}</th>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">{% if LANG == 'hy' %}Տեսակը{% elif LANG == 'fr' %}Catégorie{% else %}Category{% endif %}</th>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">{% if LANG == 'hy' %}Տեղանք{% elif LANG == 'fr' %}Zone{% else %}Area{% endif %}</th>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">{% if LANG == 'hy' %}Ձայներ{% elif LANG == 'fr' %}Votes{% else %}Votes{% endif %}</th>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">{% if LANG == 'hy' %}Հեղինակը{% elif LANG == 'fr' %}Rapporteur{% else %}Reporter{% endif %}</th>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">{% if LANG == 'hy' %}Ամսաթիվը{% elif LANG == 'fr' %}Date{% else %}Date{% endif %}</th>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">{% if LANG == 'hy' %}Կարգավիճակը{% elif LANG == 'fr' %}Statut{% else %}Status{% endif %}</th>
+            <th class="px-4 py-3.5 text-left text-xs font-bold text-[#475569] uppercase tracking-wider">{% if LANG == 'hy' %}Գործողություն{% elif LANG == 'fr' %}Action{% else %}Action{% endif %}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#E2E8F0]">
+          {% for issue in issues %}
+          <tr class="hover:bg-[#F8FAFC] transition-colors">
+            <td class="px-4 py-4 text-[#64748B] text-xs font-mono font-semibold">{{ forloop.revcounter }}</td>
+            <td class="px-4 py-4 max-w-xs">
+              <a href="/issues/{{ issue.pk }}/" class="font-semibold text-[#1E293B] hover:text-[#4F46E5] transition-colors line-clamp-1 text-sm">
+                {% if LANG == 'hy' %}{{ issue.title_hy|truncatechars:40 }}{% elif LANG == 'fr' %}{{ issue.title_en|default:issue.title_hy|truncatechars:40 }}{% else %}{{ issue.title_en|default:issue.title_hy|truncatechars:40 }}{% endif %}
+              </a>
+            </td>
+            <td class="px-4 py-4">
+              <span class="text-xs font-medium text-[#334155]">{{ category_labels|get_item:issue.category }}</span>
+            </td>
+            <td class="px-4 py-4 text-xs font-medium text-[#334155]">{{ area_labels|get_item:issue.area }}</td>
+            <td class="px-4 py-4">
+              <span class="font-bold text-sm" style="color:#4F46E5">{{ issue.upvote_count }}</span>
+            </td>
+            <td class="px-4 py-4 text-xs font-medium text-[#334155]">{{ issue.created_by.username|default:"—" }}</td>
+            <td class="px-4 py-4 text-xs font-medium text-[#475569] whitespace-nowrap">{{ issue.created_at|date:"d M Y" }}</td>
+            <td class="px-4 py-4">
+              <span class="status-{{ issue.status }}">{{ status_labels|get_item:issue.status }}</span>
+            </td>
+            <td class="px-4 py-3.5">
+              <div class="flex items-center gap-2">
+                <button
+                  data-issue-id="{{ issue.pk }}"
+                  data-status="{{ issue.status }}"
+                  data-notes="{{ issue.admin_notes|default:'' }}"
+                  onclick="openModalFromBtn(this)"
+                  class="btn-primary text-xs px-3 py-1.5">
+                  {% if LANG == 'hy' %}Թարմացնել{% elif LANG == 'fr' %}Mettre à jour{% else %}Update{% endif %}
+                </button>
+                <button
+                  data-issue-id="{{ issue.pk }}"
+                  data-issue-title="{% if LANG == 'hy' %}{{ issue.title_hy|truncatechars:30 }}{% else %}{{ issue.title_en|default:issue.title_hy|truncatechars:30 }}{% endif %}"
+                  onclick="openDeleteModal(this)"
+                  class="text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
+                  style="background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;cursor:pointer">
+                  {% if LANG == 'hy' %}Ջնջել{% elif LANG == 'fr' %}Supprimer{% else %}Delete{% endif %}
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" class="px-4 py-16 text-center text-[#94A3B8] text-sm">
+              {% if LANG == 'hy' %}Դեռևս չկան հաղորդումներ:{% elif LANG == 'fr' %}Aucun problème encore.{% else %}No issues yet.{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Status Update Modal -->
+<div id="update-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px)">
+  <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md" style="box-shadow:0 25px 60px rgba(0,0,0,0.2)">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:#EEF2FF">
+          <svg class="w-4.5 h-4.5 text-[#4F46E5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </div>
+        <h3 class="font-bold text-[#0F0D2E]">
+          {% if LANG == 'hy' %}Թարմացնել կարգավիճակը{% elif LANG == 'fr' %}Mettre à jour le statut{% else %}Update Issue Status{% endif %}
+        </h3>
+      </div>
+      <button onclick="closeModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9] transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form method="post" action="/admin-dashboard/">
+      {% csrf_token %}
+      <input type="hidden" name="issue_id" id="modal-issue-id">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+          {% if LANG == 'hy' %}Փոփոխել կարգավիճակը{% elif LANG == 'fr' %}Nouveau statut{% else %}New Status{% endif %}
+        </label>
+        <select name="status" id="modal-status" class="form-select">
+          {% if LANG == 'hy' %}
+            <option value="pending">Սպասվում է</option>
+            <option value="under_review">Ուսումնասիրվում է</option>
+            <option value="in_progress">Ընթացքի մեջ է</option>
+            <option value="completed">Ավարտվել է</option>
+            <option value="rejected">Մերժվել է</option>
+          {% elif LANG == 'fr' %}
+            <option value="pending">En attente</option>
+            <option value="under_review">En révision</option>
+            <option value="in_progress">En cours</option>
+            <option value="completed">Terminé</option>
+            <option value="rejected">Rejeté</option>
+          {% else %}
+            <option value="pending">Pending</option>
+            <option value="under_review">Under Review</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="rejected">Rejected</option>
+          {% endif %}
+        </select>
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-[#64748B] mb-1.5">
+          {% if LANG == 'hy' %}Նշումներ{% elif LANG == 'fr' %}Notes admin{% else %}Admin Notes{% endif %}
+        </label>
+        <textarea name="admin_notes" id="modal-notes" class="form-textarea" rows="3"
+          placeholder="{% if LANG == 'hy' %}Լրացուցիչ նշումներ...{% elif LANG == 'fr' %}Note optionnelle pour le rapporteur...{% else %}Optional note for the reporter...{% endif %}"></textarea>
+      </div>
+      <div class="flex gap-3">
+        <button type="submit" class="flex-1 btn-primary py-2.5 text-sm">
+          {% if LANG == 'hy' %}Պահպանել փոփոխությունները{% elif LANG == 'fr' %}Enregistrer{% else %}Save Changes{% endif %}
+        </button>
+        <button type="button" onclick="closeModal()" class="flex-1 btn-ghost py-2.5 text-sm">
+          {% if LANG == 'hy' %}Չեղարկել{% elif LANG == 'fr' %}Annuler{% else %}Cancel{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px)">
+  <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm" style="box-shadow:0 25px 60px rgba(0,0,0,0.2)">
+    <div class="flex justify-between items-center mb-5">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:#FEF2F2">
+          <svg class="w-4.5 h-4.5" fill="none" stroke="#DC2626" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <h3 class="font-bold text-[#0F0D2E]">
+          {% if LANG == 'hy' %}Ջնջե՞լ{% elif LANG == 'fr' %}Supprimer ?{% else %}Delete Issue?{% endif %}
+        </h3>
+      </div>
+      <button onclick="closeDeleteModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F1F5F9] transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="text-sm text-[#475569] mb-1">
+      {% if LANG == 'hy' %}Ցանկանում եք հեռացնե՞լ{% elif LANG == 'fr' %}Vous allez supprimer{% else %}You are about to permanently delete{% endif %}
+    </p>
+    <p id="delete-modal-title" class="text-sm font-semibold text-[#0F0D2E] mb-5 truncate"></p>
+    <p class="text-xs text-[#94A3B8] mb-6">
+      {% if LANG == 'hy' %}Այս գործողությունը չի կարող չեղարկվել:{% elif LANG == 'fr' %}Cette action est irréversible.{% else %}This action cannot be undone.{% endif %}
+    </p>
+    <form method="post" id="delete-form" action="">
+      {% csrf_token %}
+      <div class="flex gap-3">
+        <button type="submit" class="flex-1 py-2.5 text-sm rounded-xl font-semibold text-white transition-all"
+          style="background:#DC2626">
+          {% if LANG == 'hy' %}Այո՛, ջնջել{% elif LANG == 'fr' %}Oui, supprimer{% else %}Yes, Delete{% endif %}
+        </button>
+        <button type="button" onclick="closeDeleteModal()" class="flex-1 btn-ghost py-2.5 text-sm">
+          {% if LANG == 'hy' %}Չեղարկել{% elif LANG == 'fr' %}Annuler{% else %}Cancel{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>window.KAPANTSI_LANG = "{{ LANG }}";</script>
+{{ stats|json_script:"stats-data" }}
+<script src="{% static 'js/admin-dashboard.js' %}"></script>
+{% if False %}{# ── original inline JS removed — lives in static/js/admin-dashboard.js ── #}
+<script>
+const LANG = "{{ LANG }}";
+const _statsEl = document.getElementById('stats-data');
+const STATS = _statsEl ? JSON.parse(_statsEl.textContent) : {};
+
+// Modal functions
+function openModalFromBtn(btn) {
+  openModal(btn.dataset.issueId, btn.dataset.status, btn.dataset.notes);
+}
+function openModal(id, status, notes) {
+  document.getElementById('modal-issue-id').value = id;
+  document.getElementById('modal-status').value = status;
+  document.getElementById('modal-notes').value = notes || '';
+  const modal = document.getElementById('update-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  const modal = document.getElementById('update-modal');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.getElementById('update-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeModal(); closeDeleteModal(); }
+});
+
+// Delete modal
+function openDeleteModal(btn) {
+  const id = btn.dataset.issueId;
+  const title = btn.dataset.issueTitle;
+  document.getElementById('delete-modal-title').textContent = '#' + id + ' — ' + title;
+  document.getElementById('delete-form').action = '/admin-dashboard/delete/' + id + '/';
+  const modal = document.getElementById('delete-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeDeleteModal() {
+  document.getElementById('delete-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.getElementById('delete-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+
+// Table search
+document.getElementById('table-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#issues-table tbody tr').forEach(function(row) {
+    if (row.querySelector('td[colspan]')) return;
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endif %}
+{% endblock %}
