@@ -1,8 +1,6 @@
-# Կапанцы (Kapantsi)
+# Կապանցի (Kapantsi)
 
 **Civic Engagement Platform for Kapan, Armenia**
-
-Капанцин Капани бнакичнери хамар нахатесвад цифраин хартак е, вортег каролы е хагордел ненкаракаруцвацкаин хнdrрер, дзайн тал дранц луцман и нер ev hetevel karavichaki popoxuthjunnerin:
 
 Kapantsi is a civic tech platform for Kapan, Syunik, Armenia. Citizens report local infrastructure issues, vote on priorities, and receive transparent status updates from the municipality — all logged with a simulated blockchain for transparency.
 
@@ -141,4 +139,4 @@ Marker colors: Pending | Under Review | In Progress | Completed | Rejected
 
 ---
 
-© 2025 Kapantsi — Kapan Municipality | Капани Кагакапетаран
+© 2026 Kapantsi — Kapan Municipality 
