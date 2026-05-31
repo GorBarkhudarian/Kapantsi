@@ -117,12 +117,9 @@ LANGUAGES = [
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Only include static dir if it exists
-_STATIC_DIR = BASE_DIR / 'static'
-STATICFILES_DIRS = [_STATIC_DIR] if _STATIC_DIR.exists() else []
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / config('MEDIA_ROOT', default='media')
